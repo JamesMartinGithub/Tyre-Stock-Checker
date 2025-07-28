@@ -1,0 +1,428 @@
+package com.example.stockcheck;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.res.ColorStateList;
+import android.os.Bundle;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintManager;
+import android.util.TypedValue;
+import android.view.MotionEvent;
+import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.TableRow;
+import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import com.example.stockcheck.databinding.ActivityTyreListBinding;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+
+/**
+ * Activity that displays tyres and allows searching, sorting, and selecting.
+ */
+public class TyreListActivity extends AppCompatActivity {
+
+    private enum SortCategory { PARTNUMBER, LASTSOLDDATE }
+
+    private ActivityTyreListBinding binding;
+    private ArrayList<Tyre> tyreList;
+    private int rowCount = 0;
+    private boolean inEditMode = false;
+    int dragStartPosX = 0;
+    int startDragWidth = 0;
+    private Tyre selectedTyre;
+    private String selectedTyreTag;
+    private SortCategory sortCategory = SortCategory.PARTNUMBER;
+    private boolean sortAscending = true;
+    private String filterWidth = "";
+    private String filterRatio = "";
+    private String filterRim = "";
+    private String filterSearch = "";
+
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        binding = ActivityTyreListBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (inEditMode) {
+                    CloseEditor();
+                } else {
+                    DeselectTyre();
+                }
+            }
+        });
+
+        // Create handle listeners
+        HandleTouchListener handleTouchListener = new HandleTouchListener();
+        binding.partHandle.setOnTouchListener(handleTouchListener);
+        binding.supplierPartCodeHandle.setOnTouchListener(handleTouchListener);
+        binding.descriptionHandle.setOnTouchListener(handleTouchListener);
+        binding.locationHandle.setOnTouchListener(handleTouchListener);
+
+        // Create sort listeners
+        binding.partText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                HideTextEditCursor();
+                if (sortCategory == SortCategory.PARTNUMBER) {
+                    sortAscending = !sortAscending;
+                } else {
+                    sortCategory = SortCategory.PARTNUMBER;
+                    sortAscending = true;
+                    binding.lastSoldDateText.setText("Last Sold");
+                }
+                binding.partText.setText(sortAscending ? "Part▲" :  "Part▼");
+                HideSelectBar();
+                DisplayTyres();
+            }
+        });
+        binding.lastSoldDateText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                HideTextEditCursor();
+                if (sortCategory == SortCategory.LASTSOLDDATE) {
+                    sortAscending = !sortAscending;
+                } else {
+                    sortCategory = SortCategory.LASTSOLDDATE;
+                    sortAscending = true;
+                    binding.partText.setText("Part");
+                }
+                binding.lastSoldDateText.setText(sortAscending ? "Last Sold▲" :  "Last Sold▼");
+                HideSelectBar();
+                DisplayTyres();
+            }
+        });
+
+        // Create search bar listeners
+        binding.printButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                HideTextEditCursor();
+                Print();
+            }
+        });
+        binding.newButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Tyre newTyre = new Tyre("", "", "", "", "", "");
+                tyreList.add(newTyre);
+                // Add a new tyre fragment to display table, as a child of a new table row
+                int newRowId = rowCount + 10;
+                TableRow newRow = new TableRow(getApplicationContext());
+                newRow.setId(newRowId);
+                getSupportFragmentManager().beginTransaction().add(newRowId, TyreFragment.newInstance(newTyre, true), "TyreFrag" + newRowId).commit();
+                binding.tyreTable.addView(newRow);
+                rowCount++;
+                // Set new tyre fragment as selected
+                SelectTyre(newTyre, "TyreFrag" + newRowId);
+                // Launch tyre edit fragment
+                inEditMode = true;
+                binding.rootLinearLayout.setVisibility(View.GONE);
+                getSupportFragmentManager().beginTransaction().add(binding.rootFrame.getId(), TyreEditFragment.newInstance(newTyre), "TyreEditFrag").commit();
+            }
+        });
+        binding.searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                filterWidth = binding.widthText.getText().toString();
+                filterRatio = binding.aspectRatioText.getText().toString();
+                filterRim = binding.rimDiameterText.getText().toString();
+                filterSearch = binding.searchText.getText().toString();
+                HideSelectBar();
+                DisplayTyres();
+            }
+        });
+        binding.clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                binding.widthText.setText("");
+                binding.aspectRatioText.setText("");
+                binding.rimDiameterText.setText("");
+                binding.searchText.setText("");
+                filterWidth = "";
+                filterRatio = "";
+                filterRim = "";
+                filterSearch = "";
+                HideSelectBar();
+                DisplayTyres();
+            }
+        });
+
+        // Create edit bar listeners
+        binding.selectBar.setVisibility(View.GONE);
+        binding.editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Launch tyre edit fragment
+                inEditMode = true;
+                binding.rootLinearLayout.setVisibility(View.GONE);
+                getSupportFragmentManager().beginTransaction().add(binding.rootFrame.getId(), TyreEditFragment.newInstance(selectedTyre), "TyreEditFrag").commit();
+            }
+        });
+        binding.markDoneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                HideTextEditCursor();
+                boolean isDone = ((TyreFragment)getSupportFragmentManager().findFragmentByTag(selectedTyreTag)).ToggleDone();
+                SetSelectBarButtonStates(isDone, selectedTyre.IsSeenNumber());
+            }
+        });
+        binding.addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                HideTextEditCursor();
+                selectedTyre.EditSeen(true);
+                binding.seenValueText.setText(selectedTyre.GetSeen());
+            }
+        });
+        binding.minusButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                HideTextEditCursor();
+                selectedTyre.EditSeen(false);
+                binding.seenValueText.setText(selectedTyre.GetSeen());
+            }
+        });
+
+        // Get tyre list from container
+        tyreList = TyreContainer.getInstance().GetTyreList();
+        // Display tyres in table
+        DisplayTyres();
+    }
+
+    /**
+     * Recreates tyre table and applies search+sort parameters
+     */
+    private void DisplayTyres() {
+        int tyreId = 10;
+        // Clear table rows
+        if (rowCount > 0) {
+            binding.tyreTable.removeViews(1, rowCount);
+            rowCount = 0;
+        }
+        // Sort tyre list
+        if (sortCategory == SortCategory.PARTNUMBER) {
+            Comparator<Tyre> comparator = new Tyre.SortByPartNumber();
+            tyreList.sort(sortAscending ? comparator : comparator.reversed());
+        } else {
+            Comparator<Tyre> comparator = new Tyre.SortByLastSoldDate();
+            tyreList.sort(sortAscending ? comparator : comparator.reversed());
+        }
+        // Iterate over each tyre, adding to display if it passes the filter
+        for (Tyre tyre : tyreList) {
+            // Filter tyres
+            if (FilterTyre(tyre)) {
+                // Add a new tyre fragment to display table, as a child of a new table row
+                TableRow newRow = new TableRow(getApplicationContext());
+                newRow.setId(tyreId);
+                getSupportFragmentManager().beginTransaction().add(tyreId, TyreFragment.newInstance(tyre, false), "TyreFrag" + tyreId).commit();
+                binding.tyreTable.addView(newRow);
+                tyreId++;
+                rowCount++;
+            }
+        }
+        HideTextEditCursor();
+    }
+
+    public void SelectTyre(Tyre tyre, String fragmentTag) {
+        HideTextEditCursor();
+        if (selectedTyre != null) {
+            ((TyreFragment)getSupportFragmentManager().findFragmentByTag(selectedTyreTag)).SetUnselected();
+        }
+        selectedTyre = tyre;
+        selectedTyreTag = fragmentTag;
+        binding.seenValueText.setText(selectedTyre.GetSeen());
+        SetSelectBarButtonStates(selectedTyre.isDone, selectedTyre.IsSeenNumber());
+        binding.selectBar.setVisibility(View.VISIBLE);
+    }
+
+    private void DeselectTyre() {
+        HideTextEditCursor();
+        if (selectedTyre != null) {
+            ((TyreFragment)getSupportFragmentManager().findFragmentByTag(selectedTyreTag)).SetUnselected();
+        }
+        HideSelectBar();
+    }
+
+    public void HideSelectBar() {
+        binding.selectBar.setVisibility(View.GONE);
+        selectedTyre = null;
+        selectedTyreTag = null;
+    }
+
+    public void CloseEditor() {
+        Fragment tyreEditFragment = getSupportFragmentManager().findFragmentByTag("TyreEditFrag");
+        if (tyreEditFragment != null) {
+            getSupportFragmentManager().beginTransaction().remove(tyreEditFragment).commit();
+            binding.rootLinearLayout.setVisibility(View.VISIBLE);
+        }
+        ((TyreFragment)getSupportFragmentManager().findFragmentByTag(selectedTyreTag)).UpdateText();
+        binding.seenValueText.setText(selectedTyre.GetSeen());
+        SetSelectBarButtonStates(selectedTyre.isDone, selectedTyre.IsSeenNumber());
+        inEditMode = false;
+        HideTextEditCursor();
+    }
+
+    /**
+     * Checks whether a specific tyre passes the current filter parameters
+     * @param tyre Tyre to check
+     * @return Whether the tyre passes
+     */
+    private boolean FilterTyre(Tyre tyre) {
+        String partNumber = tyre.GetPartNumber();
+        // Ensure partNumber is valid
+        if (partNumber.length() == 7) {
+            // Filter by tyre sizes
+            if (!filterWidth.isEmpty() && !partNumber.startsWith(filterWidth)) {
+                return false;
+            }
+            if (!filterRatio.isEmpty() && !partNumber.substring(3).startsWith(filterRatio)) {
+                return false;
+            }
+            if (!filterRim.isEmpty() && !partNumber.substring(5).startsWith(filterRim)) {
+                return false;
+            }
+        } else {
+            if (!filterWidth.isEmpty() || !filterRatio.isEmpty() || !filterRim.isEmpty()) {
+                return false;
+            }
+        }
+        // Filter by search
+        return filterSearch.isEmpty() ||
+                tyre.GetPart(true).toLowerCase().contains(filterSearch.toLowerCase()) ||
+                tyre.GetSupplierPartCode(true).toLowerCase().contains(filterSearch.toLowerCase()) ||
+                tyre.GetDescription(true).toLowerCase().contains(filterSearch.toLowerCase()) ||
+                tyre.GetLocation(true).toLowerCase().contains(filterSearch.toLowerCase());
+    }
+
+    private void Print() {
+        // Create webview to layout html for printing
+        WebView webView = new WebView(this);
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                SendPrintJob(view);
+            }
+        });
+        // Generate html string to visualise tyre table
+        StringBuilder htmlTable = new StringBuilder("<head><style>table,th,td{border:1px solid black;border-collapse:collapse;font-size:13px;}th{text-align:left;}th,td{padding:2px;}</style></head><body>");
+        htmlTable.append("<h3>").append(LocalDate.now().toString().replace('-', '/')).append("</h3>");
+        htmlTable.append("<table><tr><th>Part</th><th>Supplier Part Code</th><th>Description</th><th>Location</th><th>Stock</th><th>Seen</th><th>Last Sold</th></tr>");
+        tyreList.sort(new Tyre.SortByPartNumber());
+        for (Tyre tyre : tyreList) {
+            htmlTable.append("<tr><td>")
+                    .append(tyre.GetPart(false))
+                    .append("</td><td>")
+                    .append(tyre.GetSupplierPartCode(false))
+                    .append("</td><td>")
+                    .append(tyre.GetDescription(false))
+                    .append("</td><td>")
+                    .append(tyre.GetLocation(false))
+                    .append("</td><td style=\"text-align:center;\">")
+                    .append(tyre.GetStock())
+                    .append("</td><td style=\"text-align:center;\">")
+                    .append(tyre.GetSeen())
+                    .append("</td><td>")
+                    .append(tyre.GetLastSoldDate(false))
+                    .append("</tr>");
+            if (!tyre.GetComment(true).isEmpty()) htmlTable.append("<tr><td colspan=\"7\">▲ ")
+                    .append(tyre.GetComment(false))
+                    .append("</td></tr>");
+        }
+        htmlTable.append("</table></body>");
+        // Pass html string into webview
+        webView.loadDataWithBaseURL(null, htmlTable.toString(), "text/HTML", "UTF-8", null);
+    }
+
+    private void SendPrintJob(WebView webView) {
+        String fileName = "StockCheck_" + LocalDate.now();
+        // Get a PrintManager instance
+        PrintManager printManager = (PrintManager) this.getSystemService(Context.PRINT_SERVICE);
+        // Get a print adapter instance
+        PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter(fileName);
+        // Create a print job with name and adapter instance
+        PrintAttributes.Builder builder = new PrintAttributes.Builder();
+        builder.setMediaSize(PrintAttributes.MediaSize.ISO_A4);
+        printManager.print(fileName, printAdapter, builder.build());
+    }
+
+    public class HandleTouchListener implements View.OnTouchListener {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            v.getParent().getParent().getParent().getParent().getParent().getParent().requestDisallowInterceptTouchEvent(true);
+            v.getParent().getParent().getParent().getParent().getParent().getParent().getParent().requestDisallowInterceptTouchEvent(true);
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    dragStartPosX = (int)event.getRawX();
+                    startDragWidth = binding.categoryRow.findViewById(HandleToTextId(v.getId())).getWidth();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    int widthDelta = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, (int)event.getRawX() - dragStartPosX, getResources().getDisplayMetrics());
+                    SetColumnWidths(HandleToTextId(v.getId()), startDragWidth + widthDelta);
+                    break;
+            }
+            return true;
+        }
+    }
+
+    private void SetColumnWidths(int textId, int newWidth) {
+        int clampedWidth = Math.clamp(newWidth,
+                (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50, getResources().getDisplayMetrics()),
+                (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 450, getResources().getDisplayMetrics()));
+        int clampedWidthPlusHandle = clampedWidth + (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40, getResources().getDisplayMetrics());
+        View categoryText = binding.categoryRow.findViewById(textId);
+        categoryText.getLayoutParams().width = clampedWidth;
+        categoryText.requestLayout();
+        for (int i = 0; i < rowCount; i++) {
+            View tyreRowText = this.findViewById(i + 10).findViewById(textId);
+            tyreRowText.getLayoutParams().width = clampedWidthPlusHandle;
+            tyreRowText.requestLayout();
+        }
+    }
+
+    private int HandleToTextId(int handleId) {
+        if (handleId == R.id.partHandle) {
+            return R.id.partText;
+        } else if (handleId == R.id.supplierPartCodeHandle) {
+            return R.id.supplierPartCodeText;
+        }  else if (handleId == R.id.descriptionHandle) {
+            return R.id.descriptionText;
+        }  else if (handleId == R.id.locationHandle) {
+            return R.id.locationText;
+        }
+        return -1;
+    }
+
+    private void SetSelectBarButtonStates(boolean isDone, boolean seenIsNumber) {
+        Context c = getApplicationContext();
+        boolean canModifySeen = !isDone && seenIsNumber;
+        int seenColourId = canModifySeen ? R.color.search_button_bg_tint : R.color.search_button_bg_tint_disabled;
+        if (c != null) {
+            binding.editButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(c,
+                    isDone ? R.color.search_button_bg_tint_disabled : R.color.search_button_bg_tint)));
+            binding.addButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(c, seenColourId)));
+            binding.minusButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(c, seenColourId)));
+        }
+        binding.editButton.setEnabled(!isDone);
+        binding.addButton.setEnabled(canModifySeen);
+        binding.minusButton.setEnabled(canModifySeen);
+        binding.markDoneButton.setText(isDone ? "Unmark" : "Mark Done");
+    }
+
+    private void HideTextEditCursor() {
+        binding.widthText.clearFocus();
+        binding.aspectRatioText.clearFocus();
+        binding.rimDiameterText.clearFocus();
+        binding.searchText.clearFocus();
+    }
+}

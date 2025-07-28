@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_light">#838CB5</color>
+    <color name="purple_dark">#616887</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="column_bg">#FAFAFA</color>
+    <color name="column_bg_selected">#FAF6AF</color>
+    <color name="column_bg_done">#999999</color>
+    <color name="column_bg_done_selected">#99976B</color>
+    <color name="table_bg">#79A7AF</color>
+    <color name="search_tab_bg">#A0B2B4</color>
+    <color name="search_text_entry_bg">#FFFFFF</color>
+    <color name="search_button_bg_tint">#668489</color>
+    <color name="search_button_bg_tint_disabled">#4A5557</color>
+    <color name="category_column_bg">#C0D0D0</color>
+    <color name="char_inserted">#007700</color>
+    <color name="char_deleted">#770000</color>
+</resources>
