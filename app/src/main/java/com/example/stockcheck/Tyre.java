@@ -3,11 +3,10 @@ package com.example.stockcheck;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.NonNull;
-
 import java.util.Comparator;
 
 /**
- * A store of tyre data with methods to edit fields, and part number, and last sold date comparators.
+ * A store of tyre data with methods to edit fields, and part number, last sold date, and stock comparators.
  */
 public class Tyre implements Parcelable {
 
@@ -19,12 +18,14 @@ public class Tyre implements Parcelable {
     private TyreComment description;
     private TyreComment location;
     private String stock;
+    private float stockFloat;
     private String seen = "0";
     private String lastSoldDateString;
     private int lastSoldDateInt;
     private boolean lastSoldDateChanged = false;
     private String extraComment = "";
     private boolean seenIsNumber = true;
+    private boolean isEdited = false;
     public boolean isDone = false;
 
     /**
@@ -41,7 +42,12 @@ public class Tyre implements Parcelable {
         this.supplierPartCode = new TyreComment(supplierPartCode);
         this.description = new TyreComment(description);
         this.location = new TyreComment(location);
-        this.stock = stock;
+        if (stock.contains(".")) {
+            this.stock = stock.split("\\.")[0];
+        } else {
+            this.stock = stock;
+        }
+        TryParseStockNumber(stock);
         this.lastSoldDateString = lastSoldDate;
         this.lastSoldDateInt = TryParseDate(lastSoldDate);
         TryParsePartNumber(part);
@@ -91,22 +97,29 @@ public class Tyre implements Parcelable {
         if (getRaw) return extraComment;
         else return "<i><font color=\"#007700\">" + extraComment + "</font></i>";
     }
+    public boolean IsEdited() {
+        return isEdited;
+    }
 
     public void EditPart(String newComment, int start) {
         part.Edit(newComment, start);
         TryParsePartNumber(newComment);
+        isEdited = true;
     }
 
     public void EditSupplierPartCode(String newComment, int start) {
         supplierPartCode.Edit(newComment, start);
+        isEdited = true;
     }
 
     public void EditDescription(String newComment, int start) {
         description.Edit(newComment, start);
+        isEdited = true;
     }
 
     public void EditLocation(String newComment, int start) {
         location.Edit(newComment, start);
+        isEdited = true;
     }
 
     public void EditSeen(String newComment) {
@@ -117,6 +130,7 @@ public class Tyre implements Parcelable {
         } catch (NumberFormatException e) {
             seenIsNumber = false;
         }
+        isEdited = true;
     }
 
     public void EditSeen(boolean isPlus) {
@@ -126,6 +140,7 @@ public class Tyre implements Parcelable {
                 currentNum = Math.max(isPlus ? currentNum + 1 : currentNum - 1, 0);
                 seen = String.valueOf(currentNum);
                 seenIsNumber = true;
+                isEdited = true;
             } catch (NumberFormatException e) {
                 seenIsNumber = false;
             }
@@ -136,10 +151,12 @@ public class Tyre implements Parcelable {
         lastSoldDateString = newComment;
         lastSoldDateChanged = true;
         lastSoldDateInt = TryParseDate(newComment);
+        isEdited = true;
     }
 
     public void EditComment(String newComment) {
         extraComment = newComment;
+        isEdited = true;
     }
 
     /**
@@ -164,7 +181,7 @@ public class Tyre implements Parcelable {
     }
 
     /**
-     * Converts a part number to an integer for comparison, if in the correct format. If invalid, returns 0;
+     * Converts a part number to an integer for comparison, if in the correct format. If invalid, sets to 0;
      * @param part Full part field, starting with the 7 digit part number
      */
     private void TryParsePartNumber(String part) {
@@ -173,6 +190,18 @@ public class Tyre implements Parcelable {
             partNumber = Integer.parseUnsignedInt(partNumString);
         } catch (Exception e) {
             partNumber = 0;
+        }
+    }
+
+    /**
+     * Converts a stock number to an integer for comparison, if in the correct format. If invalid, sets to 0;
+     * @param stock Full part field, starting with the 7 digit part number
+     */
+    private void TryParseStockNumber(String stock) {
+        try {
+            stockFloat = Float.parseFloat(stock);
+        } catch (Exception e) {
+            stockFloat = 0f;
         }
     }
 
@@ -195,6 +224,19 @@ public class Tyre implements Parcelable {
     public static class SortByLastSoldDate implements Comparator<Tyre> {
         public int compare(Tyre tyre1, Tyre tyre2) {
             int compResult = Integer.compare(tyre1.lastSoldDateInt, tyre2.lastSoldDateInt);
+            if (compResult == 0) {
+                return tyre1.GetPart(true).compareTo(tyre2.GetPart(true));
+            }
+            return compResult;
+        }
+    }
+
+    /**
+     * Comparator that sorts first on stock, and then on the part field string
+     */
+    public static class SortByStock implements Comparator<Tyre> {
+        public int compare(Tyre tyre1, Tyre tyre2) {
+            int compResult = Float.compare(tyre1.stockFloat, tyre2.stockFloat);
             if (compResult == 0) {
                 return tyre1.GetPart(true).compareTo(tyre2.GetPart(true));
             }

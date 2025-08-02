@@ -151,6 +151,8 @@ public class TyreFragment extends Fragment {
         locationText.setText(Html.fromHtml(tyre.GetLocation(false), Html.FROM_HTML_MODE_COMPACT));
         TextView stockText = (TextView) view.findViewById(R.id.stockText);
         stockText.setText(tyre.GetStock());
+        TextView seenText = (TextView) view.findViewById(R.id.seenText);
+        seenText.setText(tyre.GetSeen());
         TextView lastSoldDateText = (TextView) view.findViewById(R.id.lastSoldDateText);
         lastSoldDateText.setText(Html.fromHtml(tyre.GetLastSoldDate(false), Html.FROM_HTML_MODE_COMPACT));
     }
@@ -168,6 +170,7 @@ public class TyreFragment extends Fragment {
             v.findViewById(R.id.descriptionText).setBackgroundColor(ContextCompat.getColor(c, colourId));
             v.findViewById(R.id.locationText).setBackgroundColor(ContextCompat.getColor(c, colourId));
             v.findViewById(R.id.stockText).setBackgroundColor(ContextCompat.getColor(c, colourId));
+            v.findViewById(R.id.seenText).setBackgroundColor(ContextCompat.getColor(c, colourId));
             v.findViewById(R.id.lastSoldDateText).setBackgroundColor(ContextCompat.getColor(c, colourId));
         }
     }

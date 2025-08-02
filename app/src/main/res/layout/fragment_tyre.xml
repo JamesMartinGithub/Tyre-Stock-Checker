@@ -73,7 +73,20 @@
 
             <TextView
                 android:id="@+id/stockText"
-                android:layout_width="50dp"
+                android:layout_width="60dp"
+                android:layout_height="30dp"
+                android:layout_marginRight="1dp"
+                android:background="@color/column_bg"
+                android:gravity="center"
+                android:paddingLeft="2sp"
+                android:singleLine="true"
+                android:text="TextView"
+                android:textAlignment="center"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/seenText"
+                android:layout_width="65dp"
                 android:layout_height="30dp"
                 android:layout_marginRight="1dp"
                 android:background="@color/column_bg"
@@ -88,7 +101,6 @@
                 android:id="@+id/lastSoldDateText"
                 android:layout_width="90dp"
                 android:layout_height="30dp"
-                android:layout_marginRight="1dp"
                 android:background="@color/column_bg"
                 android:gravity="center"
                 android:paddingLeft="2sp"
