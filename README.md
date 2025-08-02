@@ -7,12 +7,14 @@ It provides importing of .xlsx or .csv files from GDS containing stock informati
 - Android Studio with Java, using Activities, Fragments, Intents, Parcelables, and Resources
 - Parsing of .xlsx (excel spreadsheet) and .csv files
 - Custom algorithm to record changes (insertions and deletions) to a string, for annotated display
+- Lazy loading of fragments for performance and to reduce memory usage
 
 ## Features:
 - Importing of .xlsx and .csv files
 - Scrollable spreadsheet view of tyre information, with resizable column widths
-- Part number and general search fields, and sorting by part number and last sold date
+- Part number and general search fields, and sorting by part number, last sold date, and stock
 - Easy adding and subtracting from a 'seen' count for each tyre
 - Editing of all fields for each tyre, with an extra comment field available
 - Tyres can be reversibly marked as done to prevent further editing
 - A spreadsheet view of all tyres can be printed to PDF or paper, clearly displaying changes to tyre information, for updating the central stock database
+- Option to hide out of stock tyres
