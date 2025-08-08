@@ -67,6 +67,8 @@ public class TyreEditFragment extends Fragment {
         locationText.setText(tyre.GetLocation(true));
         TextView seenText = (TextView) view.findViewById(R.id.seenText);
         seenText.setText(tyre.GetSeen());
+        TextView stockText = (TextView) view.findViewById(R.id.stockText);
+        stockText.setText(tyre.GetStock());
         TextView lastSoldDateText = (TextView) view.findViewById(R.id.lastSoldDateText);
         lastSoldDateText.setText(tyre.GetLastSoldDate(true));
         TextView commentText = (TextView) view.findViewById(R.id.commentText);
@@ -107,16 +109,16 @@ public class TyreEditFragment extends Fragment {
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             switch (id) {
                 case 0:
-                    tyre.EditPart(s.toString(), start);
+                    tyre.EditPart(s.toString());
                     break;
                 case 1:
-                    tyre.EditSupplierPartCode(s.toString(), start);
+                    tyre.EditSupplierPartCode(s.toString());
                     break;
                 case 2:
-                    tyre.EditDescription(s.toString(), start);
+                    tyre.EditDescription(s.toString());
                     break;
                 case 3:
-                    tyre.EditLocation(s.toString(), start);
+                    tyre.EditLocation(s.toString());
                     break;
                 case 4:
                     tyre.EditSeen(s.toString());

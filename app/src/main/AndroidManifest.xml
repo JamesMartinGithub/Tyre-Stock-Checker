@@ -13,9 +13,10 @@
         android:theme="@style/Theme.StockCheck">
         <activity
             android:name=".TyreListActivity"
+            android:windowSoftInputMode="adjustPan"
             android:exported="false"
             android:label="@string/title_activity_tyre_list"
-            android:theme="@style/Theme.StockCheck.NoActionBar" />
+            android:theme="@style/Theme.StockCheck" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

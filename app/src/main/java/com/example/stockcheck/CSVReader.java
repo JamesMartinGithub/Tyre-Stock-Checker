@@ -99,7 +99,7 @@ public class CSVReader {
                 }
                 // Check entry is a tyre
                 if (stockEntryData[6].equals("Tyres") && (stockEntryData[0].startsWith("1") || stockEntryData[0].startsWith("2") || stockEntryData[0].startsWith("3"))) {
-                    Tyre newTyre = new Tyre(stockEntryData[0], stockEntryData[1], stockEntryData[2], stockEntryData[3], stockEntryData[4], stockEntryData[5]);
+                    Tyre newTyre = new Tyre(stockEntryData[0], stockEntryData[1], stockEntryData[2], stockEntryData[3], stockEntryData[4], stockEntryData[5], false);
                     tyreList.add(newTyre);
                 }
             }

@@ -59,9 +59,8 @@ public class TyreComment implements Parcelable {
     /**
      * Updates the comment with a new one.
      * @param newComment Edited comment, with either one or many deletions, or one or many insertions
-     * @param start Index of first changed character
      */
-    public void Edit(String newComment, int start) {
+    public void Edit(String newComment) {
         if (commentChars == null) {
             // Initialise lists and maps for editing
             commentChars = new ArrayList<>();
@@ -78,6 +77,13 @@ public class TyreComment implements Parcelable {
         int diffAbs = Math.abs(lengthDiff);
         if (lengthDiff > 0) {
             // Deletion
+            int start = newComment.length();
+            for (int i = 0; i < newComment.length(); i++) {
+                if (rawField.charAt(i) != newComment.charAt(i)) {
+                    start = i;
+                    break;
+                }
+            }
             int loopOffset = 0;
             for (int i = start; i < start + diffAbs; i++) {
                 if (commentTypes.get(charIndexMap.get(i - loopOffset)) == Tyre.CharType.INSERTED) {
@@ -95,14 +101,14 @@ public class TyreComment implements Parcelable {
         } else if (lengthDiff < 0) {
             // Insertion
             // Find start of text difference (passed start index not usable for insertion)
-            int insertStart = rawField.length();
+            int start = rawField.length();
             for (int i = 0; i < rawField.length(); i++) {
                 if (rawField.charAt(i) != newComment.charAt(i)) {
-                    insertStart = i;
+                    start = i;
                     break;
                 }
             }
-            for (int i = insertStart; i < insertStart + diffAbs; i++) {
+            for (int i = start; i < start + diffAbs; i++) {
                 if (i >= charIndexMap.size()) {
                     // char at end of string, add new map entry at end
                     charIndexMap.put(i, (charIndexMap.size() > 0) ? (charIndexMap.get(i - 1) + 1) : 0);

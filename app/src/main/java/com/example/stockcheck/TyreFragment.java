@@ -19,10 +19,18 @@ import android.widget.TextView;
  */
 public class TyreFragment extends Fragment {
 
+    private class Widths {
+        public int pWidth;
+        public int dWidth;
+        public int lWidth;
+        public int sWidth;
+    }
+
     private TyreListActivity activity;
     private Tyre tyre;
     private boolean startSelected;
     private boolean isSelected = false;
+    private Widths initialWidths = null;
 
     public TyreFragment() {
         // Required empty public constructor
@@ -33,11 +41,15 @@ public class TyreFragment extends Fragment {
      * @param tyre Tyre to display
      * @return A new instance of fragment TyreFragment.
      */
-    public static TyreFragment newInstance(Tyre tyre, boolean startSelected) {
+    public static TyreFragment newInstance(Tyre tyre, boolean startSelected, int pWidth, int dWidth, int lWidth, int sWidth) {
         TyreFragment fragment = new TyreFragment();
         Bundle args = new Bundle();
         args.putParcelable("Tyre", tyre);
         args.putBoolean("startSelected", startSelected);
+        args.putInt("pWidth", pWidth);
+        args.putInt("dWidth", dWidth);
+        args.putInt("lWidth", lWidth);
+        args.putInt("sWidth", sWidth);
         fragment.setArguments(args);
         return fragment;
     }
@@ -74,6 +86,13 @@ public class TyreFragment extends Fragment {
         if (getArguments() != null) {
             tyre = getArguments().getParcelable("Tyre");
             startSelected = getArguments().getBoolean("startSelected");
+            if (getArguments().getInt("pWidth") != 0) {
+                initialWidths = new Widths();
+                initialWidths.pWidth = getArguments().getInt("pWidth");
+                initialWidths.dWidth = getArguments().getInt("dWidth");
+                initialWidths.lWidth = getArguments().getInt("lWidth");
+                initialWidths.sWidth = getArguments().getInt("sWidth");
+            }
         }
     }
 
@@ -110,7 +129,20 @@ public class TyreFragment extends Fragment {
     }
 
     private void SetCategoryWidth(int id, View v) {
-        int width = activity.findViewById(id).getWidth();
+        int width;
+        if (initialWidths != null) {
+            if (id == R.id.partText) {
+                width = initialWidths.pWidth;
+            } else if (id == R.id.supplierPartCodeText) {
+                width = initialWidths.sWidth;
+            } else if (id == R.id.descriptionText) {
+                width = initialWidths.dWidth;
+            } else {
+                width = initialWidths.lWidth;
+            }
+        } else {
+            width = activity.findViewById(id).getWidth();
+        }
         if (width != 0) {
             int widthPlusHandle = width + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40, getResources().getDisplayMetrics());
             v.findViewById(id).getLayoutParams().width = widthPlusHandle;

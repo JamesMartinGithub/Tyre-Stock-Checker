@@ -12,14 +12,8 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
-    </style>
-
-    <style name="Theme.StockCheck.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:navigationBarColor">@color/column_bg</item>
     </style>
-
-    <style name="Theme.StockCheck.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="Theme.StockCheck.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

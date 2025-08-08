@@ -153,12 +153,12 @@ public class XLSXReader {
                                             stockEntryData[categoryMap.get(columnId)] = columnData;
                                         }
                                     }
+                                    // Ensure no strings are null
+                                    for (int c = 0; c < 7; c++) if (stockEntryData[c] == null) stockEntryData[c] = "";
                                     // Check entry is a tyre
                                     if (stockEntryData[6].equals("Tyres") && (stockEntryData[0].startsWith("1") || stockEntryData[0].startsWith("2") || stockEntryData[0].startsWith("3"))) {
-                                        // Ensure no strings are null
-                                        for (int c = 0; c < 6; c++) if (stockEntryData[c] == null) stockEntryData[c] = "";
                                         // Create new tyre and add it to tyre list
-                                        Tyre newTyre = new Tyre(stockEntryData[0], stockEntryData[1], stockEntryData[2], stockEntryData[3], stockEntryData[4], stockEntryData[5]);
+                                        Tyre newTyre = new Tyre(stockEntryData[0], stockEntryData[1], stockEntryData[2], stockEntryData[3], stockEntryData[4], stockEntryData[5], false);
                                         tyreList.add(newTyre);
                                     }
                                 }

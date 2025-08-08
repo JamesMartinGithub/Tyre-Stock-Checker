@@ -26,6 +26,7 @@ public class Tyre implements Parcelable {
     private String extraComment = "";
     private boolean seenIsNumber = true;
     private boolean isEdited = false;
+    private boolean isAdded = false;
     public boolean isDone = false;
 
     /**
@@ -37,7 +38,7 @@ public class Tyre implements Parcelable {
      * @param stock
      * @param lastSoldDate
      */
-    public Tyre(String part, String supplierPartCode, String description, String location, String stock, String lastSoldDate) {
+    public Tyre(String part, String supplierPartCode, String description, String location, String stock, String lastSoldDate, boolean isAdded) {
         this.part = new TyreComment(part);
         this.supplierPartCode = new TyreComment(supplierPartCode);
         this.description = new TyreComment(description);
@@ -51,6 +52,7 @@ public class Tyre implements Parcelable {
         this.lastSoldDateString = lastSoldDate;
         this.lastSoldDateInt = TryParseDate(lastSoldDate);
         TryParsePartNumber(part);
+        this.isAdded = isAdded;
     }
 
     public String GetPart(boolean getRaw) {
@@ -97,28 +99,33 @@ public class Tyre implements Parcelable {
         if (getRaw) return extraComment;
         else return "<i><font color=\"#007700\">" + extraComment + "</font></i>";
     }
+
+    public boolean IsAdded() {
+        return isAdded;
+    }
+
     public boolean IsEdited() {
         return isEdited;
     }
 
-    public void EditPart(String newComment, int start) {
-        part.Edit(newComment, start);
+    public void EditPart(String newComment) {
+        part.Edit(newComment);
         TryParsePartNumber(newComment);
         isEdited = true;
     }
 
-    public void EditSupplierPartCode(String newComment, int start) {
-        supplierPartCode.Edit(newComment, start);
+    public void EditSupplierPartCode(String newComment) {
+        supplierPartCode.Edit(newComment);
         isEdited = true;
     }
 
-    public void EditDescription(String newComment, int start) {
-        description.Edit(newComment, start);
+    public void EditDescription(String newComment) {
+        description.Edit(newComment);
         isEdited = true;
     }
 
-    public void EditLocation(String newComment, int start) {
-        location.Edit(newComment, start);
+    public void EditLocation(String newComment) {
+        location.Edit(newComment);
         isEdited = true;
     }
 
