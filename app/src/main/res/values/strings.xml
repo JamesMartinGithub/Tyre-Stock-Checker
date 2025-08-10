@@ -1,13 +1,39 @@
 <resources>
     <string name="app_name">Stock Check</string>
     <string name="title_activity_tyre_list">TyreListActivity</string>
-
-    <string name="part_category">Part</string>
-    <string name="part_category_arrow">Part%1$s</string>
-    <string name="stock_category">Stock</string>
-    <string name="stock_category_arrow">Stock%1$s</string>
-    <string name="lastsold_category">Last Sold</string>
-    <string name="lastsold_category_arrow">Last Sold%1$s</string>
+    <!-- Category Row -->
+    <string name="category_part">Part</string>
+    <string name="category_part_arrow">Part%1$s</string>
+    <string name="category_part_arrow_initial">Part▲</string>
+    <string name="category_description">Description</string>
+    <string name="category_location">Location</string>
+    <string name="category_stock">Stock</string>
+    <string name="category_stock_arrow">Stock%1$s</string>
+    <string name="category_seen">Seen</string>
+    <string name="category_last_sold">Last Sold</string>
+    <string name="category_last_sold_arrow">Last Sold%1$s</string>
+    <string name="category_supplier_part_codes">Supplier Part Codes</string>
+    <string name="category_comment">Comment</string>
     <string name="sort_arrow_up">▲</string>
     <string name="sort_arrow_down">▼</string>
+    <!-- Buttons -->
+    <string name="file_selector">Load File</string>
+    <string name="size_hint_section_width">width</string>
+    <string name="size_hint_aspect_ratio">ratio</string>
+    <string name="size_hint_rim_diameter">rim</string>
+    <string name="filter_search">Search</string>
+    <string name="filter_clear">Clear</string>
+    <string name="count_seen">Count Seen</string>
+    <string name="unstocked_show">Show All</string>
+    <string name="unstocked_hide">Hide 0 Stock</string>
+    <string name="select_edit">Edit</string>
+    <string name="select_mark">Mark Done</string>
+    <string name="select_unmark">Unmark</string>
+    <string name="editor_back">Back</string>
+    <!-- Saving -->
+    <string name="brackets">(%1$s)</string>
+    <string name="save_successful">Saved</string>
+    <string name="save_nothing_to_save">No changes to save</string>
+    <string name="save_nothing_to_delete">No save data to delete</string>
+    <string name="save_delete_successful">Save data deleted"</string>
 </resources>

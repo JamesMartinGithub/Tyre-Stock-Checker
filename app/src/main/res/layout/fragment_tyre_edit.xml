@@ -15,7 +15,6 @@
 
         <Button
             android:id="@+id/backButton"
-            app:cornerRadius="5dp"
             android:layout_width="200dp"
             android:layout_height="45dp"
             android:layout_centerInParent="true"
@@ -25,7 +24,8 @@
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:singleLine="true"
-            android:text="Back" />
+            android:text="@string/editor_back"
+            app:cornerRadius="5dp" />
     </RelativeLayout>
 
     <LinearLayout
@@ -39,7 +39,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:text="Part"
+            android:text="@string/category_part"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -74,7 +74,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:text="Supplier Part Codes"
+            android:text="@string/category_supplier_part_codes"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -109,7 +109,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:text="Description"
+            android:text="@string/category_description"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -144,7 +144,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:text="Location"
+            android:text="@string/category_location"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -183,7 +183,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="Seen"
+                android:text="@string/category_seen"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -219,7 +219,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="Stock"
+                android:text="@string/category_stock"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -251,7 +251,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:text="Last Sold Date"
+            android:text="@string/category_last_sold"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -286,7 +286,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:text="Comment"
+            android:text="@string/category_comment"
             android:textSize="18sp"
             android:textStyle="bold" />
 

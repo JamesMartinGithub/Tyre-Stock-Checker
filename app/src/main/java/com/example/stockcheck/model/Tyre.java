@@ -1,8 +1,9 @@
-package com.example.stockcheck;
+package com.example.stockcheck.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.NonNull;
+import com.example.stockcheck.storage.StoredTyre;
 import java.util.Comparator;
 
 /**
@@ -12,33 +13,38 @@ public class Tyre implements Parcelable {
 
     public enum CharType { UNCHANGED, DELETED, INSERTED }
 
+    private final int id;
     private TyreComment part;
     private int partNumber;
     private TyreComment supplierPartCode;
     private TyreComment description;
     private TyreComment location;
-    private String stock;
+    private final String stock;
     private float stockFloat;
     private String seen = "0";
+    private boolean seenIsNumber = true;
     private String lastSoldDateString;
     private int lastSoldDateInt;
     private boolean lastSoldDateChanged = false;
     private String extraComment = "";
-    private boolean seenIsNumber = true;
+    /**
+     * Excludes edits to seen
+     */
     private boolean isEdited = false;
     private boolean isAdded = false;
     public boolean isDone = false;
 
     /**
      * Constructor that takes initial field strings, all must be non-null.
-     * @param part
-     * @param supplierPartCode
-     * @param description
-     * @param location
-     * @param stock
-     * @param lastSoldDate
+     * @param part 'Part' category text
+     * @param supplierPartCode 'Supplier Part Codes' category text
+     * @param description 'Description' category text
+     * @param location 'Location' category text
+     * @param stock 'On Stock' category text
+     * @param lastSoldDate 'Last Sold Date' category text
      */
-    public Tyre(String part, String supplierPartCode, String description, String location, String stock, String lastSoldDate, boolean isAdded) {
+    public Tyre(int id, String part, String supplierPartCode, String description, String location, String stock, String lastSoldDate, boolean isAdded) {
+        this.id = id;
         this.part = new TyreComment(part);
         this.supplierPartCode = new TyreComment(supplierPartCode);
         this.description = new TyreComment(description);
@@ -50,9 +56,13 @@ public class Tyre implements Parcelable {
         }
         TryParseStockNumber(stock);
         this.lastSoldDateString = lastSoldDate;
-        this.lastSoldDateInt = TryParseDate(lastSoldDate);
+        TryParseDate(lastSoldDate);
         TryParsePartNumber(part);
         this.isAdded = isAdded;
+    }
+
+    public int GetId() {
+        return id;
     }
 
     public String GetPart(boolean getRaw) {
@@ -134,10 +144,9 @@ public class Tyre implements Parcelable {
         try {
             Integer.parseUnsignedInt(seen);
             seenIsNumber = true;
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             seenIsNumber = false;
         }
-        isEdited = true;
     }
 
     public void EditSeen(boolean isPlus) {
@@ -147,8 +156,7 @@ public class Tyre implements Parcelable {
                 currentNum = Math.max(isPlus ? currentNum + 1 : currentNum - 1, 0);
                 seen = String.valueOf(currentNum);
                 seenIsNumber = true;
-                isEdited = true;
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException ignored) {
                 seenIsNumber = false;
             }
         }
@@ -157,7 +165,7 @@ public class Tyre implements Parcelable {
     public void EditLastSoldDate(String newComment) {
         lastSoldDateString = newComment;
         lastSoldDateChanged = true;
-        lastSoldDateInt = TryParseDate(newComment);
+        TryParseDate(newComment);
         isEdited = true;
     }
 
@@ -167,53 +175,52 @@ public class Tyre implements Parcelable {
     }
 
     /**
-     * Converts a date string to an integer for comparison, if in the correct format. If invalid, returns 0;
+     * Converts a date string to an integer for comparison, if in the correct format. If invalid, sets to 0.
      * @param dateString / seperated date in DD/MM/YYYY format
-     * @return An integer representing the date
      */
-    static private int TryParseDate(String dateString) {
+    private void TryParseDate(String dateString) {
         try {
             String[] parts = dateString.split("/");
             if (parts.length == 3) {
                 int day = Integer.parseInt(parts[0]);
                 int month = Integer.parseInt(parts[1]);
                 int year = Integer.parseInt(parts[2]);
-                return (year * 10000) + (month * 100) + day;
+                lastSoldDateInt = (year * 10000) + (month * 100) + day;
             } else {
                 throw new Exception("Invalid date string");
             }
-        } catch (Exception e) {
-            return 0;
+        } catch (Exception ignored) {
+            lastSoldDateInt = 0;
         }
     }
 
     /**
-     * Converts a part number to an integer for comparison, if in the correct format. If invalid, sets to 0;
+     * Converts a part number to an integer for comparison, if in the correct format. If invalid, sets to 0.
      * @param part Full part field, starting with the 7 digit part number
      */
     private void TryParsePartNumber(String part) {
         try {
             String partNumString = part.substring(0, 7);
             partNumber = Integer.parseUnsignedInt(partNumString);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             partNumber = 0;
         }
     }
 
     /**
-     * Converts a stock number to an integer for comparison, if in the correct format. If invalid, sets to 0;
+     * Converts a stock number to an integer for comparison, if in the correct format. If invalid, sets to 0.
      * @param stock Full part field, starting with the 7 digit part number
      */
     private void TryParseStockNumber(String stock) {
         try {
             stockFloat = Float.parseFloat(stock);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             stockFloat = 0f;
         }
     }
 
     /**
-     * Comparator that sorts first on part number, and then on the part field string
+     * Comparator that sorts first on part number, and then on the part field string.
      */
     public static class SortByPartNumber implements Comparator<Tyre> {
         public int compare(Tyre tyre1, Tyre tyre2) {
@@ -226,7 +233,7 @@ public class Tyre implements Parcelable {
     }
 
     /**
-     * Comparator that sorts first on date, and then on the part field string
+     * Comparator that sorts first on date, and then on the part field string.
      */
     public static class SortByLastSoldDate implements Comparator<Tyre> {
         public int compare(Tyre tyre1, Tyre tyre2) {
@@ -239,7 +246,7 @@ public class Tyre implements Parcelable {
     }
 
     /**
-     * Comparator that sorts first on stock, and then on the part field string
+     * Comparator that sorts first on stock, and then on the part field string.
      */
     public static class SortByStock implements Comparator<Tyre> {
         public int compare(Tyre tyre1, Tyre tyre2) {
@@ -251,6 +258,45 @@ public class Tyre implements Parcelable {
         }
     }
 
+    public StoredTyre ToStoredTyre() {
+        StoredTyre storedTyre = new StoredTyre();
+        storedTyre.id = id;
+        storedTyre.part = part;
+        storedTyre.supplierPartCode = supplierPartCode;
+        storedTyre.description = description;
+        storedTyre.location = location;
+        storedTyre.seen = seen;
+        storedTyre.lastSoldDateString = lastSoldDateString;
+        storedTyre.lastSoldDateChanged = lastSoldDateChanged;
+        storedTyre.extraComment = extraComment;
+        storedTyre.isEdited = isEdited;
+        storedTyre.isAdded = isAdded;
+        storedTyre.isDone = isDone;
+        return storedTyre;
+    }
+
+    public void FromStoredTyre(StoredTyre storedTyre) {
+        part = storedTyre.part;
+        TryParsePartNumber(part.GetString(true));
+        supplierPartCode = storedTyre.supplierPartCode;
+        description = storedTyre.description;
+        location = storedTyre.location;
+        seen = storedTyre.seen;
+        try {
+            Integer.parseUnsignedInt(seen);
+            seenIsNumber = true;
+        } catch (NumberFormatException ignored) {
+            seenIsNumber = false;
+        }
+        lastSoldDateString = storedTyre.lastSoldDateString;
+        TryParseDate(lastSoldDateString);
+        lastSoldDateChanged = storedTyre.lastSoldDateChanged;
+        extraComment = storedTyre.extraComment;
+        isEdited = storedTyre.isEdited;
+        isAdded = storedTyre.isAdded;
+        isDone = storedTyre.isDone;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -258,6 +304,7 @@ public class Tyre implements Parcelable {
 
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int flags) {
+        parcel.writeInt(id);
         parcel.writeParcelable(part, 0);
         parcel.writeInt(partNumber);
         parcel.writeParcelable(supplierPartCode, 0);
@@ -280,6 +327,7 @@ public class Tyre implements Parcelable {
     };
 
     private Tyre(Parcel in) {
+        id = in.readInt();
         part = in.readParcelable(TyreComment.class.getClassLoader());
         partNumber = in.readInt();
         supplierPartCode = in.readParcelable(TyreComment.class.getClassLoader());

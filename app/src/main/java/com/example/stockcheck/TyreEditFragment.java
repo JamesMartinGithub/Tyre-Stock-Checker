@@ -2,6 +2,7 @@ package com.example.stockcheck;
 
 import android.content.Context;
 import android.os.Bundle;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import android.text.Editable;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import com.example.stockcheck.model.Tyre;
 
 /**
  * Fragment allowing editing of tyre data.
@@ -53,7 +55,7 @@ public class TyreEditFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         // Initialise text edits with text from tyre
@@ -93,7 +95,7 @@ public class TyreEditFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof TyreListActivity) {
             activity = (TyreListActivity) context;
@@ -101,7 +103,7 @@ public class TyreEditFragment extends Fragment {
     }
 
     public class EditTextListener implements TextWatcher {
-        private int id;
+        private final int id;
         public EditTextListener(int id) {
             this.id = id;
         }

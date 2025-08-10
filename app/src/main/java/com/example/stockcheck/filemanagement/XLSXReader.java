@@ -1,7 +1,8 @@
-package com.example.stockcheck;
+package com.example.stockcheck.filemanagement;
 
 import android.content.Context;
 import android.net.Uri;
+import com.example.stockcheck.model.Tyre;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -78,6 +79,7 @@ public class XLSXReader {
 
         // Get list of tyres
         ArrayList<Tyre> tyreList = new ArrayList<>();
+        int tyresAdded = 0;
         try (InputStream inputStream = applicationContext.getContentResolver().openInputStream(uri)) {
             if (inputStream != null) {
                 // Since .xlsx is a zip file, use ZipInputStream to read contents
@@ -158,8 +160,9 @@ public class XLSXReader {
                                     // Check entry is a tyre
                                     if (stockEntryData[6].equals("Tyres") && (stockEntryData[0].startsWith("1") || stockEntryData[0].startsWith("2") || stockEntryData[0].startsWith("3"))) {
                                         // Create new tyre and add it to tyre list
-                                        Tyre newTyre = new Tyre(stockEntryData[0], stockEntryData[1], stockEntryData[2], stockEntryData[3], stockEntryData[4], stockEntryData[5], false);
+                                        Tyre newTyre = new Tyre(tyresAdded, stockEntryData[0], stockEntryData[1], stockEntryData[2], stockEntryData[3], stockEntryData[4], stockEntryData[5], false);
                                         tyreList.add(newTyre);
+                                        tyresAdded++;
                                     }
                                 }
                             }

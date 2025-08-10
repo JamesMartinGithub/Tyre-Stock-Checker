@@ -28,7 +28,6 @@
                 android:gravity="center"
                 android:paddingLeft="2sp"
                 android:singleLine="true"
-                android:text="TextView"
                 android:textAlignment="viewStart"
                 android:textSize="16sp" />
 
@@ -41,7 +40,6 @@
                 android:gravity="center"
                 android:paddingLeft="2sp"
                 android:singleLine="true"
-                android:text="TextView"
                 android:textAlignment="viewStart"
                 android:textSize="16sp" />
 
@@ -54,7 +52,6 @@
                 android:gravity="center"
                 android:paddingLeft="2sp"
                 android:singleLine="true"
-                android:text="TextView"
                 android:textAlignment="viewStart"
                 android:textSize="16sp" />
 
@@ -67,7 +64,6 @@
                 android:gravity="center"
                 android:paddingLeft="2sp"
                 android:singleLine="true"
-                android:text="TextView"
                 android:textAlignment="center"
                 android:textSize="16sp" />
 
@@ -80,7 +76,6 @@
                 android:gravity="center"
                 android:paddingLeft="2sp"
                 android:singleLine="true"
-                android:text="TextView"
                 android:textAlignment="center"
                 android:textSize="16sp" />
 
@@ -93,7 +88,6 @@
                 android:gravity="center"
                 android:paddingLeft="2sp"
                 android:singleLine="true"
-                android:text="TextView"
                 android:textAlignment="viewStart"
                 android:textSize="16sp" />
 
@@ -105,7 +99,6 @@
                 android:gravity="center"
                 android:paddingLeft="2sp"
                 android:singleLine="true"
-                android:text="TextView"
                 android:textAlignment="viewStart"
                 android:textSize="16sp" />
 

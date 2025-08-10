@@ -34,7 +34,7 @@
                     android:allowUndo="false"
                     android:background="@color/search_text_entry_bg"
                     android:ems="10"
-                    android:hint="width"
+                    android:hint="@string/size_hint_section_width"
                     android:imeActionId="0"
                     android:imeOptions="flagNoExtractUi"
                     android:inputType="number"
@@ -61,7 +61,7 @@
                     android:allowUndo="false"
                     android:background="@color/search_text_entry_bg"
                     android:ems="10"
-                    android:hint="ratio"
+                    android:hint="@string/size_hint_aspect_ratio"
                     android:imeActionId="1"
                     android:imeOptions="flagNoExtractUi"
                     android:inputType="number"
@@ -86,7 +86,7 @@
                     android:allowUndo="false"
                     android:background="@color/search_text_entry_bg"
                     android:ems="10"
-                    android:hint="rim"
+                    android:hint="@string/size_hint_rim_diameter"
                     android:imeActionId="2"
                     android:imeOptions="flagNoExtractUi"
                     android:inputType="number"
@@ -201,7 +201,7 @@
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:singleLine="true"
-                    android:text="Search"
+                    android:text="@string/filter_search"
                     app:cornerRadius="5dp" />
 
                 <Button
@@ -214,7 +214,7 @@
                     android:insetBottom="0dp"
                     android:padding="0dp"
                     android:singleLine="true"
-                    android:text="Clear"
+                    android:text="@string/filter_clear"
                     app:cornerRadius="5dp" />
 
             </LinearLayout>
@@ -279,7 +279,7 @@
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:singleLine="false"
-                android:text="Count Seen"
+                android:text="@string/count_seen"
                 app:cornerRadius="5dp"
                 app:iconPadding="0dp"
                 app:iconTint="@color/white" />
@@ -296,7 +296,7 @@
                 android:insetBottom="0dp"
                 android:maxLines="2"
                 android:singleLine="false"
-                android:text="Show All"
+                android:text="@string/unstocked_show"
                 app:cornerRadius="5dp"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp"
@@ -360,7 +360,7 @@
                                         android:gravity="center"
                                         android:paddingLeft="2sp"
                                         android:singleLine="true"
-                                        android:text="Part▲"
+                                        android:text="@string/category_part_arrow_initial"
                                         android:textAlignment="textStart"
                                         android:textSize="17sp"
                                         android:textStyle="bold" />
@@ -397,7 +397,7 @@
                                         android:gravity="center"
                                         android:paddingLeft="2sp"
                                         android:singleLine="true"
-                                        android:text="Description"
+                                        android:text="@string/category_description"
                                         android:textAlignment="textStart"
                                         android:textSize="17sp"
                                         android:textStyle="bold" />
@@ -432,7 +432,7 @@
                                         android:gravity="center"
                                         android:paddingLeft="2sp"
                                         android:singleLine="true"
-                                        android:text="Location"
+                                        android:text="@string/category_location"
                                         android:textAlignment="textStart"
                                         android:textSize="17sp"
                                         android:textStyle="bold" />
@@ -467,7 +467,7 @@
                                         android:background="@color/category_column_bg"
                                         android:gravity="center"
                                         android:singleLine="true"
-                                        android:text="Stock"
+                                        android:text="@string/category_stock"
                                         android:textAlignment="center"
                                         android:textSize="17sp"
                                         android:textStyle="bold" />
@@ -480,7 +480,7 @@
                                         android:background="@color/category_column_bg"
                                         android:gravity="center"
                                         android:singleLine="true"
-                                        android:text="Seen"
+                                        android:text="@string/category_seen"
                                         android:textAlignment="center"
                                         android:textSize="17sp"
                                         android:textStyle="bold" />
@@ -494,7 +494,7 @@
                                         android:gravity="center"
                                         android:paddingLeft="2sp"
                                         android:singleLine="true"
-                                        android:text="Last Sold"
+                                        android:text="@string/category_last_sold"
                                         android:textAlignment="textStart"
                                         android:textSize="17sp"
                                         android:textStyle="bold" />
@@ -507,7 +507,7 @@
                                         android:gravity="center"
                                         android:paddingLeft="2sp"
                                         android:singleLine="true"
-                                        android:text="Supplier Part Codes"
+                                        android:text="@string/category_supplier_part_codes"
                                         android:textAlignment="textStart"
                                         android:textSize="17sp"
                                         android:textStyle="bold" />
@@ -568,7 +568,7 @@
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:singleLine="true"
-                    android:text="Edit"
+                    android:text="@string/select_edit"
                     android:textColor="@color/white"
                     app:cornerRadius="5dp"
                     app:iconTint="@color/white" />
@@ -585,7 +585,7 @@
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:singleLine="true"
-                    android:text="Mark Done"
+                    android:text="@string/select_mark"
                     app:cornerRadius="5dp" />
 
                 <Button

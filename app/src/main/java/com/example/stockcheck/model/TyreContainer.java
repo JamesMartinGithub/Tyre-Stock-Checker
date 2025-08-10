@@ -1,4 +1,4 @@
-package com.example.stockcheck;
+package com.example.stockcheck.model;
 
 import java.util.ArrayList;
 

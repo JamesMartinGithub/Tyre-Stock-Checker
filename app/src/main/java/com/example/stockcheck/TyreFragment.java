@@ -2,6 +2,7 @@ package com.example.stockcheck;
 
 import android.content.Context;
 import android.os.Bundle;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import com.example.stockcheck.model.Tyre;
 
 /**
  * Fragment that displays tyre information as a selectable table row
@@ -19,11 +21,18 @@ import android.widget.TextView;
  */
 public class TyreFragment extends Fragment {
 
-    private class Widths {
+    public static class Widths {
         public int pWidth;
         public int dWidth;
         public int lWidth;
         public int sWidth;
+
+        public Widths(int pWidth, int dWidth, int lWidth, int sWidth) {
+            this.pWidth = pWidth;
+            this.dWidth = dWidth;
+            this.lWidth = lWidth;
+            this.sWidth = sWidth;
+        }
     }
 
     private TyreListActivity activity;
@@ -41,15 +50,15 @@ public class TyreFragment extends Fragment {
      * @param tyre Tyre to display
      * @return A new instance of fragment TyreFragment.
      */
-    public static TyreFragment newInstance(Tyre tyre, boolean startSelected, int pWidth, int dWidth, int lWidth, int sWidth) {
+    public static TyreFragment newInstance(Tyre tyre, boolean startSelected, Widths widths) {
         TyreFragment fragment = new TyreFragment();
         Bundle args = new Bundle();
         args.putParcelable("Tyre", tyre);
         args.putBoolean("startSelected", startSelected);
-        args.putInt("pWidth", pWidth);
-        args.putInt("dWidth", dWidth);
-        args.putInt("lWidth", lWidth);
-        args.putInt("sWidth", sWidth);
+        args.putInt("pWidth", widths.pWidth);
+        args.putInt("dWidth", widths.dWidth);
+        args.putInt("lWidth", widths.lWidth);
+        args.putInt("sWidth", widths.sWidth);
         fragment.setArguments(args);
         return fragment;
     }
@@ -87,11 +96,11 @@ public class TyreFragment extends Fragment {
             tyre = getArguments().getParcelable("Tyre");
             startSelected = getArguments().getBoolean("startSelected");
             if (getArguments().getInt("pWidth") != 0) {
-                initialWidths = new Widths();
-                initialWidths.pWidth = getArguments().getInt("pWidth");
-                initialWidths.dWidth = getArguments().getInt("dWidth");
-                initialWidths.lWidth = getArguments().getInt("lWidth");
-                initialWidths.sWidth = getArguments().getInt("sWidth");
+                initialWidths = new Widths(
+                        getArguments().getInt("pWidth"),
+                        getArguments().getInt("dWidth"),
+                        getArguments().getInt("lWidth"),
+                        getArguments().getInt("sWidth"));
             }
         }
     }
@@ -103,7 +112,7 @@ public class TyreFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         UpdateText();
         if (startSelected) {
@@ -121,7 +130,7 @@ public class TyreFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof TyreListActivity) {
             activity = (TyreListActivity) context;
@@ -144,8 +153,7 @@ public class TyreFragment extends Fragment {
             width = activity.findViewById(id).getWidth();
         }
         if (width != 0) {
-            int widthPlusHandle = width + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40, getResources().getDisplayMetrics());
-            v.findViewById(id).getLayoutParams().width = widthPlusHandle;
+            v.findViewById(id).getLayoutParams().width = width + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40, getResources().getDisplayMetrics());
             v.findViewById(id).requestLayout();
         }
     }
@@ -172,21 +180,25 @@ public class TyreFragment extends Fragment {
      * Updates all displayed text.
      */
     public void UpdateText() {
-        View view = getView();
-        TextView partText = (TextView) view.findViewById(R.id.partText);
-        partText.setText(Html.fromHtml(tyre.GetPart(false), Html.FROM_HTML_MODE_COMPACT));
-        TextView supplierPartCodeText = (TextView) view.findViewById(R.id.supplierPartCodeText);
-        supplierPartCodeText.setText(Html.fromHtml(tyre.GetSupplierPartCode(false), Html.FROM_HTML_MODE_COMPACT));
-        TextView descriptionText = (TextView) view.findViewById(R.id.descriptionText);
-        descriptionText.setText(Html.fromHtml(tyre.GetDescription(false), Html.FROM_HTML_MODE_COMPACT));
-        TextView locationText = (TextView) view.findViewById(R.id.locationText);
-        locationText.setText(Html.fromHtml(tyre.GetLocation(false), Html.FROM_HTML_MODE_COMPACT));
-        TextView stockText = (TextView) view.findViewById(R.id.stockText);
-        stockText.setText(tyre.GetStock());
-        TextView seenText = (TextView) view.findViewById(R.id.seenText);
-        seenText.setText(tyre.GetSeen());
-        TextView lastSoldDateText = (TextView) view.findViewById(R.id.lastSoldDateText);
-        lastSoldDateText.setText(Html.fromHtml(tyre.GetLastSoldDate(false), Html.FROM_HTML_MODE_COMPACT));
+        try {
+            View view = getView();
+            TextView partText = (TextView) view.findViewById(R.id.partText);
+            partText.setText(Html.fromHtml(tyre.GetPart(false), Html.FROM_HTML_MODE_COMPACT));
+            TextView supplierPartCodeText = (TextView) view.findViewById(R.id.supplierPartCodeText);
+            supplierPartCodeText.setText(Html.fromHtml(tyre.GetSupplierPartCode(false), Html.FROM_HTML_MODE_COMPACT));
+            TextView descriptionText = (TextView) view.findViewById(R.id.descriptionText);
+            descriptionText.setText(Html.fromHtml(tyre.GetDescription(false), Html.FROM_HTML_MODE_COMPACT));
+            TextView locationText = (TextView) view.findViewById(R.id.locationText);
+            locationText.setText(Html.fromHtml(tyre.GetLocation(false), Html.FROM_HTML_MODE_COMPACT));
+            TextView stockText = (TextView) view.findViewById(R.id.stockText);
+            stockText.setText(tyre.GetStock());
+            TextView seenText = (TextView) view.findViewById(R.id.seenText);
+            seenText.setText(tyre.GetSeen());
+            TextView lastSoldDateText = (TextView) view.findViewById(R.id.lastSoldDateText);
+            lastSoldDateText.setText(Html.fromHtml(tyre.GetLastSoldDate(false), Html.FROM_HTML_MODE_COMPACT));
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
     }
 
     /**
@@ -206,6 +218,4 @@ public class TyreFragment extends Fragment {
             v.findViewById(R.id.lastSoldDateText).setBackgroundColor(ContextCompat.getColor(c, colourId));
         }
     }
-
-
 }

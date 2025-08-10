@@ -1,7 +1,8 @@
-package com.example.stockcheck;
+package com.example.stockcheck.filemanagement;
 
 import android.content.Context;
 import android.net.Uri;
+import com.example.stockcheck.model.Tyre;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,6 +34,7 @@ public class CSVReader {
      */
     public static ArrayList<Tyre> Read(Uri uri, Context applicationContext) throws Exception {
         ArrayList<Tyre> tyreList = new ArrayList<>();
+        int tyresAdded = 0;
         try (InputStream inputStream = applicationContext.getContentResolver().openInputStream(uri)) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
             // Skip BOM char, if it appears
@@ -99,8 +101,9 @@ public class CSVReader {
                 }
                 // Check entry is a tyre
                 if (stockEntryData[6].equals("Tyres") && (stockEntryData[0].startsWith("1") || stockEntryData[0].startsWith("2") || stockEntryData[0].startsWith("3"))) {
-                    Tyre newTyre = new Tyre(stockEntryData[0], stockEntryData[1], stockEntryData[2], stockEntryData[3], stockEntryData[4], stockEntryData[5], false);
+                    Tyre newTyre = new Tyre(tyresAdded, stockEntryData[0], stockEntryData[1], stockEntryData[2], stockEntryData[3], stockEntryData[4], stockEntryData[5], false);
                     tyreList.add(newTyre);
+                    tyresAdded++;
                 }
             }
             reader.close();
