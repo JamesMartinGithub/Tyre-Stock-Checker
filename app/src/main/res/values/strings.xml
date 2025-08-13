@@ -36,4 +36,6 @@
     <string name="save_nothing_to_save">No changes to save</string>
     <string name="save_nothing_to_delete">No save data to delete</string>
     <string name="save_delete_successful">Save data deleted"</string>
+    <string name="save_error">An error occurred, could not save</string>
+    <string name="save_delete_error">An error occurred, could not delete save data</string>
 </resources>

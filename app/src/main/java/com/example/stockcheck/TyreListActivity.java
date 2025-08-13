@@ -45,17 +45,18 @@ public class TyreListActivity extends AppCompatActivity {
     private ActivityTyreListBinding binding;
     private String filename;
     private ArrayList<Tyre> tyreList;
-    private ArrayList<Integer> displayedTyreIndexes = new ArrayList<>();
-    private static final int tyreIdOffset = 10;
+    private final ArrayList<Integer> displayedTyreIndexes = new ArrayList<>();
+    private final int tyreIdOffset = 10;
     /**
      * Number of tyres displayed at a time, should be 20 minimum.
      */
-    private static final int maxDisplayedTyres = 20;
+    private int maxDisplayedTyres;
     /**
      * Minimum value to read from vertical scrollbar (value at which previous tyre rows can start being hidden).
      */
-    private static final int minScrollY = 119 + (int)(101 * ((maxDisplayedTyres - 17) / 2.0f));
+    private final int minScrollY = 119 + (int)(101 * (5 / 2.0f));
     private int lastTopTyreIndex = 0;
+    private final ArrayList<Integer> tableRowIDs = new ArrayList<>();
     private int rowCount = 0;
     private boolean inEditMode = false;
     private boolean inOptions = false;
@@ -85,6 +86,12 @@ public class TyreListActivity extends AppCompatActivity {
 
         binding = ActivityTyreListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Initialise maxDisplayedTyres to fit the device's screen size
+        int heightDp = (int)(getResources().getDisplayMetrics().heightPixels /  getApplicationContext().getResources().getDisplayMetrics().density) - 174;
+        maxDisplayedTyres = (heightDp / 38) + 5;
+
+        // Create back button callback to intercept back button presses
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -124,7 +131,7 @@ public class TyreListActivity extends AppCompatActivity {
                 // Cap minimum to y pos at which first tyre row can be culled)
                 maxNewY = Math.max(maxNewY, minScrollY);
                 // Cap maximum to y pos 10 rows above last row
-                maxNewY = Math.min(maxNewY, 119 + ((Math.max(rowCount - 10, 2)) * 101));
+                maxNewY = Math.min(maxNewY, 119 + ((Math.max(rowCount - 6, 2)) * 101));
                 // Divide y by tyre row height to get number of tyres scrolled by (= no. of tyre rows to remove and add)
                 int topTyreIndex = Math.abs(maxNewY - minScrollY) / 101;
                 if (topTyreIndex != lastTopTyreIndex) {
@@ -140,7 +147,7 @@ public class TyreListActivity extends AppCompatActivity {
                             String newFragTag = "TyreFrag" + (i + tyreIdOffset + maxDisplayedTyres);
                             if (rowCount > i + maxDisplayedTyres && getSupportFragmentManager().findFragmentByTag(newFragTag) == null) {
                                 boolean shouldBeSelected = selectedTyreTag != null && selectedTyreTag.equals(newFragTag);
-                                getSupportFragmentManager().beginTransaction().add(i + tyreIdOffset + maxDisplayedTyres, TyreFragment.newInstance(tyreList.get(displayedTyreIndexes.get(i + maxDisplayedTyres)), shouldBeSelected, new TyreFragment.Widths(0, 0, 0, 0)), newFragTag).commit();
+                                getSupportFragmentManager().beginTransaction().add(tableRowIDs.get(i + maxDisplayedTyres), TyreFragment.newInstance(tyreList.get(displayedTyreIndexes.get(i + maxDisplayedTyres)), shouldBeSelected, new TyreFragment.Widths(0, 0, 0, 0)), newFragTag).commit();
                             }
                         }
                     } else {
@@ -155,7 +162,7 @@ public class TyreListActivity extends AppCompatActivity {
                             String newFragTag = "TyreFrag" + (i + tyreIdOffset);
                             if (rowCount > i && getSupportFragmentManager().findFragmentByTag(newFragTag) == null) {
                                 boolean shouldBeSelected = selectedTyreTag != null && selectedTyreTag.equals(newFragTag);
-                                getSupportFragmentManager().beginTransaction().add(i + tyreIdOffset, TyreFragment.newInstance(tyreList.get(displayedTyreIndexes.get(i)), shouldBeSelected, new TyreFragment.Widths(0, 0, 0, 0)), newFragTag).commit();
+                                getSupportFragmentManager().beginTransaction().add(tableRowIDs.get(i), TyreFragment.newInstance(tyreList.get(displayedTyreIndexes.get(i)), shouldBeSelected, new TyreFragment.Widths(0, 0, 0, 0)), newFragTag).commit();
                             }
                         }
                     }
@@ -492,9 +499,11 @@ public class TyreListActivity extends AppCompatActivity {
                 // Add a new tyre fragment to display table, as a child of a new table row
                 TableRow newRow = new TableRow(getApplicationContext());
                 newRow.setMinimumHeight(101);
-                newRow.setId(tyreId);
+                int newId = View.generateViewId();
+                tableRowIDs.add(newId);
+                newRow.setId(newId);
                 if (rowCount < maxDisplayedTyres) {
-                    getSupportFragmentManager().beginTransaction().add(tyreId, TyreFragment.newInstance(
+                    getSupportFragmentManager().beginTransaction().add(newId, TyreFragment.newInstance(
                             tyreList.get(i),
                             selectedTyre != null && selectedTyre.equals(tyreList.get(i)),
                             new TyreFragment.Widths(pWidth, dWidth, lWidth, sWidth)), "TyreFrag" + tyreId).commit();
@@ -518,6 +527,7 @@ public class TyreListActivity extends AppCompatActivity {
             }
         }
         binding.tyreTable.removeViews(1, rowCount);
+        tableRowIDs.clear();
         rowCount = 0;
         displayedTyreIndexes.clear();
         lastTopTyreIndex = 0;
@@ -726,42 +736,50 @@ public class TyreListActivity extends AppCompatActivity {
     }
 
     private void SaveEditedTyres() {
-        boolean tyresSaved = false;
-        ArrayList<StoredTyre> tyresToStore = new ArrayList<>();
-        for (Tyre tyre : tyreList) {
-            if (tyre.IsEdited() || !tyre.GetSeen().equals("0") || tyre.isDone || tyre.IsAdded()) {
-                tyresToStore.add(tyre.ToStoredTyre());
-                tyresSaved = true;
+        try {
+            boolean tyresSaved = false;
+            ArrayList<StoredTyre> tyresToStore = new ArrayList<>();
+            for (Tyre tyre : tyreList) {
+                if (tyre.IsEdited() || !tyre.GetSeen().equals("0") || tyre.isDone || tyre.IsAdded()) {
+                    tyresToStore.add(tyre.ToStoredTyre());
+                    tyresSaved = true;
+                }
             }
-        }
-        final boolean finalTyresSaved = tyresSaved;
-        MetaData metaData = new MetaData();
-        metaData.savedFilename = filename;
-        metaData.savedTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy"));
-        TyreDatabase database = TyreDatabase.getDatabase(getApplicationContext());
-        TyreDatabase.databaseWriteExecutor.execute(() -> {
-            if (finalTyresSaved) {
-                database.storedTyreDao().Clear();
-                database.metaDataDao().Clear();
-                database.storedTyreDao().Insert(tyresToStore);
-                database.metaDataDao().Insert(metaData);
-            }
-            this.runOnUiThread(() -> {
-                DisplaySnackbar(finalTyresSaved ? getString(R.string.save_successful) : getString(R.string.save_nothing_to_save));
+            final boolean finalTyresSaved = tyresSaved;
+            MetaData metaData = new MetaData();
+            metaData.savedFilename = filename;
+            metaData.savedTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy"));
+            TyreDatabase database = TyreDatabase.getDatabase(getApplicationContext());
+            TyreDatabase.databaseWriteExecutor.execute(() -> {
+                if (finalTyresSaved) {
+                    database.storedTyreDao().Clear();
+                    database.metaDataDao().Clear();
+                    database.storedTyreDao().Insert(tyresToStore);
+                    database.metaDataDao().Insert(metaData);
+                }
+                this.runOnUiThread(() -> {
+                    DisplaySnackbar(finalTyresSaved ? getString(R.string.save_successful) : getString(R.string.save_nothing_to_save));
+                });
             });
-        });
+        } catch (Exception ignored) {
+            DisplaySnackbar(getString(R.string.save_error));
+        }
     }
 
     private void ClearSaveData() {
-        TyreDatabase database = TyreDatabase.getDatabase(getApplicationContext());
-        TyreDatabase.databaseWriteExecutor.execute(() -> {
-            MetaData metaData = database.metaDataDao().Get();
-            database.storedTyreDao().Clear();
-            database.metaDataDao().Clear();
-            this.runOnUiThread(() -> {
-                DisplaySnackbar(metaData == null ? getString(R.string.save_nothing_to_delete) : getString(R.string.save_delete_successful));
+        try {
+            TyreDatabase database = TyreDatabase.getDatabase(getApplicationContext());
+            TyreDatabase.databaseWriteExecutor.execute(() -> {
+                MetaData metaData = database.metaDataDao().Get();
+                database.storedTyreDao().Clear();
+                database.metaDataDao().Clear();
+                this.runOnUiThread(() -> {
+                    DisplaySnackbar(metaData == null ? getString(R.string.save_nothing_to_delete) : getString(R.string.save_delete_successful));
+                });
             });
-        });
+        } catch (Exception ignored) {
+            DisplaySnackbar(getString(R.string.save_delete_error));
+        }
     }
 
     public class HandleTouchListener implements View.OnTouchListener {
@@ -776,7 +794,7 @@ public class TyreListActivity extends AppCompatActivity {
                     startDragWidth = binding.categoryRow.findViewById(HandleToTextId(v.getId())).getWidth();
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    int widthDelta = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, (int)event.getRawX() - dragStartPosX, getResources().getDisplayMetrics());
+                    int widthDelta = (int)event.getRawX() - dragStartPosX;
                     SetColumnWidths(HandleToTextId(v.getId()), startDragWidth + widthDelta);
                     break;
             }
@@ -793,7 +811,7 @@ public class TyreListActivity extends AppCompatActivity {
         categoryText.getLayoutParams().width = clampedWidth;
         categoryText.requestLayout();
         for (int i = lastTopTyreIndex; i < Math.min(lastTopTyreIndex + maxDisplayedTyres, rowCount); i++) {
-            View tyreRow = this.findViewById(i + tyreIdOffset);
+            View tyreRow = this.findViewById(tableRowIDs.get(i));
             if (tyreRow != null) {
                 View tyreRowText = tyreRow.findViewById(textId);
                 if (tyreRowText != null) {
