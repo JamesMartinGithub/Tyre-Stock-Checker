@@ -21,3 +21,7 @@ It provides importing of .xlsx or .csv files from GDS containing stock informati
 - Option to hide out of stock tyres
 - Button to count number of tyres seen
 - Option to add new tyres (which are deletable)
+
+## Gallery:
+<img src="https://github.com/user-attachments/assets/b655caa0-e418-4fda-86ac-0ce808231c99" width="270" height="547">
+<img src="https://github.com/user-attachments/assets/78fffb23-4d7b-47e6-8b59-b49fec0435a6" width="270" height="547">
