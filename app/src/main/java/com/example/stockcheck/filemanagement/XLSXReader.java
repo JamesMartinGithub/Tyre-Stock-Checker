@@ -139,7 +139,16 @@ public class XLSXReader {
                                             break;
                                     }
                                 }
-                                if (categoryMap.size() != 7) throw new Exception("Invalid spreadsheet categories");
+                                if (categoryMap.size() != 7) {
+                                    // No category headers found, initialise categoryMap with default order
+                                    categoryMap.put('A', 0);
+                                    categoryMap.put('B', 1);
+                                    categoryMap.put('C', 2);
+                                    categoryMap.put('D', 3);
+                                    categoryMap.put('G', 4);
+                                    categoryMap.put('N', 5);
+                                    categoryMap.put('H', 6);
+                                }
                                 // Iterate over each row (stock entry)
                                 for (int row = 1; row < rows.getLength(); row++) {
                                     String[] stockEntryData = new String[7];

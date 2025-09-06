@@ -671,7 +671,8 @@ public class TyreListActivity extends AppCompatActivity {
             }
         });
         // Generate html string to visualise tyre table
-        StringBuilder htmlTable = new StringBuilder("<head><style>@page{margin:20px;@bottom-center{content:counter(page)\" of \"counter(pages);}}" +
+        StringBuilder htmlTable = new StringBuilder("<head><style>@page{margin:20px;margin-bottom:35px;@bottom-center{content:counter(page)\" of \"counter(pages);margin-bottom:30px;}}" +
+                "table{page-break-after:auto;}tr{page-break-inside:avoid;page-break-after:auto}td{page-break-inside:avoid;page-break-after:auto}" +
                 "table,th,td{border:0.1pt solid DarkGray;border-collapse:collapse;font-size:12px;color:DimGrey;}" +
                 "th{text-align:left;}th,td{padding:1px;}u{text-decoration-color:#007700;}" +
                 "s{text-decoration-color:#770000;}</style></head><body>");
@@ -696,7 +697,7 @@ public class TyreListActivity extends AppCompatActivity {
             }
             if (tyre.IsEdited() || !seenMatchesStock || stockNum > 0) {
                 htmlTable.append("<tr><td style=\"color:Black;width:1%;\">")
-                        .append((tyre.IsEdited() || !seenMatchesStock) ? "●" : "")
+                        .append(tyre.IsAdded() ? "✚" : (tyre.IsEdited() || !seenMatchesStock) ? "●" : "")
                         .append("</td><td>")
                         .append(tyre.GetPart(false))
                         .append("</td><td>")
@@ -712,7 +713,7 @@ public class TyreListActivity extends AppCompatActivity {
                         .append((!seenMatchesStock ? "</b>" : "") + "</td><td>")
                         .append(tyre.GetLastSoldDate(false))
                         .append("</tr>");
-                if (!tyre.GetComment(true).isEmpty()) htmlTable.append("<tr><td colspan=\"8\">▲ ")
+                if (!tyre.GetComment(true).isBlank()) htmlTable.append("<tr><td colspan=\"8\">▲ ")
                         .append(tyre.GetComment(false))
                         .append("</td></tr>");
             }

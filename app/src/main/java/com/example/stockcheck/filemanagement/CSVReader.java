@@ -70,7 +70,16 @@ public class CSVReader {
                         break;
                 }
             }
-            if (categoryMap.size() != 7) throw new Exception("Invalid CSV categories");
+            if (categoryMap.size() != 7) {
+                // No category headers found, initialise categoryMap with default order
+                categoryMap.put(0, 0);
+                categoryMap.put(1, 1);
+                categoryMap.put(2, 2);
+                categoryMap.put(3, 3);
+                categoryMap.put(6, 4);
+                categoryMap.put(13, 5);
+                categoryMap.put(7, 6);
+            }
             while ((line = reader.readLine()) != null) {
                 // Parse row
                 String[] stockEntryData = new String[7];
