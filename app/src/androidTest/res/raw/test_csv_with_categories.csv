@@ -1,0 +1,10 @@
+Part,Supplier Part Codes,Description,Location,Cost Price,Sell Price,On Stock,Category,Tyre,Models,Engines,Barcode,CompanyCode,Last Sold Date,Sell Price 2
+"1954515, r15","Posuere, cubilia", 195/45 R15 80T Hendrerit,Aliquam,,,3,Tyres,,,,,,17/01/2023,
+1955516,"Laoreet, Vivamus",195/55 R16 88T Quisque,Augue,,,0,Tyres,,,,,,21/02/2012,
+2055017,Praesent,205/50 R17 87V Mauris,Aliquam,,,2,Tyres,,,,,,16/06/2025,
+2155517,Nullam id,215/55 R17 87V Suspendisse,Massa,,,8,Tyres,,,,,,10/11/2023,
+2155517,Imperdiet aliquet,215/55 R17 97W Hendrerit,Aliquam,,,3,Tyres,,,,,,16/03/2022,
+2254518,Efficitur,225/45 R18 94W Suspendisse,Luctus,,,4.0,Tyres,,,,,,08/06/2023,
+2354520,Vivamus,235/45 R20 86Y Mauris,Massa,,,2,Tyres,,,,,,17/04/2025,
+2454017,Posuere cubilia,245/40 R17 100Y Quisque,Vestibulum,,,3,Tyres,,,,,,17/04/2025,
+2553019,Nullam id,255/30 R19 110W Suspendisse,"Aliquam, Massa",,,4,Tyres,,,,,,18/06/2025,

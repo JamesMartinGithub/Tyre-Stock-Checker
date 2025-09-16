@@ -11,6 +11,8 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,11 +45,12 @@ public class XLSXReader {
     public static ArrayList<Tyre> Read(Uri uri, Context applicationContext) throws Exception {
         // Get list of shared strings
         ArrayList<String> sharedStrings = new ArrayList<>();
+        ArrayList<String> dateStyleIds = new ArrayList<>();
         try (InputStream inputStream = applicationContext.getContentResolver().openInputStream(uri)) {
             if (inputStream != null) {
                 // Since .xlsx is a zip file, use ZipInputStream to read contents
                 ZipInputStream zipInputStream = new ZipInputStream(inputStream);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(zipInputStream, StandardCharsets.UTF_8));
+                BufferedReader reader = new ManualCloseBufferedReader(new InputStreamReader(zipInputStream, StandardCharsets.UTF_8));
                 ZipEntry zipEntry;
                 while ((zipEntry = zipInputStream.getNextEntry()) != null) {
                     String entryName = zipEntry.getName();
@@ -68,7 +71,37 @@ public class XLSXReader {
                         for (int i = 0; i < allNodes.getLength(); i++) {
                             sharedStrings.add(allNodes.item(i).getChildNodes().item(0).getTextContent());
                         }
-                        break;
+                    }
+                    if (entryName.contains("styles.xml")) {
+                        // Parse styles xml to get index of any serial-date format styles
+                        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                        DocumentBuilder builder = factory.newDocumentBuilder();
+                        InputSource source = new InputSource(reader);
+                        // Skip BOM char, if it appears
+                        reader.mark(1);
+                        int firstChar = reader.read();
+                        if (firstChar != 65279) reader.reset();
+                        // Create document object to represent xml
+                        Document document = builder.parse(source);
+                        Element rootElement = document.getDocumentElement();
+                        NodeList allNodes = rootElement.getChildNodes();
+                        // Find format styles with id 14
+                        NodeList styleNodes = null;
+                        for (int i = 0; i < allNodes.getLength(); i++) {
+                            if (allNodes.item(i).getNodeName().equals("cellXfs")) {
+                                styleNodes = allNodes.item(i).getChildNodes();
+                                break;
+                            }
+                        }
+                        if (styleNodes != null) {
+                            for (int i = 0; i < styleNodes.getLength(); i++) {
+                                Element styleElement = (Element)styleNodes.item(i);
+                                if (styleElement.getAttribute("numFmtId").equals("14")) {
+                                    // Found style with id 14, add to list
+                                    dateStyleIds.add(String.valueOf(i));
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -110,35 +143,41 @@ public class XLSXReader {
                                 NodeList categoryColumns = rows.item(0).getChildNodes();
                                 for (int column = 0; column < categoryColumns.getLength(); column++) {
                                     Element columnElement = (Element)categoryColumns.item(column);
-                                    String categoryName = columnElement.getChildNodes().item(0).getTextContent();
-                                    if (columnElement.getAttribute("t").equals("s")) {
-                                        // Replace shared string
-                                        categoryName = sharedStrings.get(Integer.parseInt(categoryName));
-                                    }
-                                    switch (categoryName) {
-                                        case "Part":
-                                            categoryMap.put(columnElement.getAttribute("r").charAt(0), 0);
-                                            break;
-                                        case "Supplier Part Codes":
-                                            categoryMap.put(columnElement.getAttribute("r").charAt(0), 1);
-                                            break;
-                                        case "Description":
-                                            categoryMap.put(columnElement.getAttribute("r").charAt(0), 2);
-                                            break;
-                                        case "Location":
-                                            categoryMap.put(columnElement.getAttribute("r").charAt(0), 3);
-                                            break;
-                                        case "On Stock":
-                                            categoryMap.put(columnElement.getAttribute("r").charAt(0), 4);
-                                            break;
-                                        case "Last Sold Date":
-                                            categoryMap.put(columnElement.getAttribute("r").charAt(0), 5);
-                                            break;
-                                        case "Category":
-                                            categoryMap.put(columnElement.getAttribute("r").charAt(0), 6);
-                                            break;
+                                    // Ensure column has data to read
+                                    if (columnElement.hasChildNodes()) {
+                                        // Read column data
+                                        String categoryName = columnElement.getChildNodes().item(0).getTextContent();
+                                        if (columnElement.getAttribute("t").equals("s")) {
+                                            // Replace shared string
+                                            categoryName = sharedStrings.get(Integer.parseInt(categoryName));
+                                        }
+                                        // If it is a used category, map its column index (letter)
+                                        switch (categoryName) {
+                                            case "Part":
+                                                categoryMap.put(columnElement.getAttribute("r").charAt(0), 0);
+                                                break;
+                                            case "Supplier Part Codes":
+                                                categoryMap.put(columnElement.getAttribute("r").charAt(0), 1);
+                                                break;
+                                            case "Description":
+                                                categoryMap.put(columnElement.getAttribute("r").charAt(0), 2);
+                                                break;
+                                            case "Location":
+                                                categoryMap.put(columnElement.getAttribute("r").charAt(0), 3);
+                                                break;
+                                            case "On Stock":
+                                                categoryMap.put(columnElement.getAttribute("r").charAt(0), 4);
+                                                break;
+                                            case "Last Sold Date":
+                                                categoryMap.put(columnElement.getAttribute("r").charAt(0), 5);
+                                                break;
+                                            case "Category":
+                                                categoryMap.put(columnElement.getAttribute("r").charAt(0), 6);
+                                                break;
+                                        }
                                     }
                                 }
+                                boolean shouldReParseRow0 = false;
                                 if (categoryMap.size() != 7) {
                                     // No category headers found, initialise categoryMap with default order
                                     categoryMap.put('A', 0);
@@ -148,20 +187,30 @@ public class XLSXReader {
                                     categoryMap.put('G', 4);
                                     categoryMap.put('N', 5);
                                     categoryMap.put('H', 6);
+                                    shouldReParseRow0 = true;
                                 }
                                 // Iterate over each row (stock entry)
-                                for (int row = 1; row < rows.getLength(); row++) {
+                                for (int row = shouldReParseRow0 ? 0 : 1; row < rows.getLength(); row++) {
                                     String[] stockEntryData = new String[7];
                                     NodeList columns = rows.item(row).getChildNodes();
                                     for (int column = 0; column < columns.getLength(); column++) {
                                         Element columnElement = (Element)columns.item(column);
-                                        String columnData = columnElement.getChildNodes().item(0).getTextContent();
-                                        if (columnElement.getAttribute("t").equals("s")) {
-                                            columnData = sharedStrings.get(Integer.parseInt(columnData));
-                                        }
-                                        char columnId = columnElement.getAttribute("r").charAt(0);
-                                        if (categoryMap.containsKey(columnId)) {
-                                            stockEntryData[categoryMap.get(columnId)] = columnData;
+                                        if (columnElement.hasChildNodes()) {
+                                            String columnData = columnElement.getChildNodes().item(0).getTextContent();
+                                            if (columnElement.getAttribute("t").equals("s")) {
+                                                // Replace shared string
+                                                columnData = sharedStrings.get(Integer.parseInt(columnData));
+                                            }
+                                            if (columnElement.hasAttribute("s") && dateStyleIds.contains(columnElement.getAttribute("s"))) {
+                                                // Data is serial-date, convert to readable date
+                                                int daysSince1900 = Integer.parseInt(columnData);
+                                                // Date pattern month first to convert american XLSX date style to british day first
+                                                columnData = LocalDate.of(1899, 12, 30).plusDays(daysSince1900).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+                                            }
+                                            char columnId = columnElement.getAttribute("r").charAt(0);
+                                            if (categoryMap.containsKey(columnId)) {
+                                                stockEntryData[categoryMap.get(columnId)] = columnData;
+                                            }
                                         }
                                     }
                                     // Ensure no strings are null

@@ -183,13 +183,13 @@ public class TyreFragment extends Fragment {
         try {
             View view = getView();
             TextView partText = (TextView) view.findViewById(R.id.partText);
-            partText.setText(Html.fromHtml(tyre.GetPart(false), Html.FROM_HTML_MODE_COMPACT));
+            partText.setText(Html.fromHtml(tyre.GetPart(false, getContext()), Html.FROM_HTML_MODE_COMPACT));
             TextView supplierPartCodeText = (TextView) view.findViewById(R.id.supplierPartCodeText);
-            supplierPartCodeText.setText(Html.fromHtml(tyre.GetSupplierPartCode(false), Html.FROM_HTML_MODE_COMPACT));
+            supplierPartCodeText.setText(Html.fromHtml(tyre.GetSupplierPartCode(false, getContext()), Html.FROM_HTML_MODE_COMPACT));
             TextView descriptionText = (TextView) view.findViewById(R.id.descriptionText);
-            descriptionText.setText(Html.fromHtml(tyre.GetDescription(false), Html.FROM_HTML_MODE_COMPACT));
+            descriptionText.setText(Html.fromHtml(tyre.GetDescription(false, getContext()), Html.FROM_HTML_MODE_COMPACT));
             TextView locationText = (TextView) view.findViewById(R.id.locationText);
-            locationText.setText(Html.fromHtml(tyre.GetLocation(false), Html.FROM_HTML_MODE_COMPACT));
+            locationText.setText(Html.fromHtml(tyre.GetLocation(false, getContext()), Html.FROM_HTML_MODE_COMPACT));
             TextView stockText = (TextView) view.findViewById(R.id.stockText);
             stockText.setText(tyre.GetStock());
             TextView seenText = (TextView) view.findViewById(R.id.seenText);

@@ -79,8 +79,10 @@ public class CSVReader {
                 categoryMap.put(6, 4);
                 categoryMap.put(13, 5);
                 categoryMap.put(7, 6);
+            } else {
+                line = reader.readLine();
             }
-            while ((line = reader.readLine()) != null) {
+            while (line != null) {
                 // Parse row
                 String[] stockEntryData = new String[7];
                 int categoryIndex = 0;
@@ -114,6 +116,7 @@ public class CSVReader {
                     tyreList.add(newTyre);
                     tyresAdded++;
                 }
+                line = reader.readLine();
             }
             reader.close();
         } catch (Exception e) {

@@ -1,5 +1,6 @@
 package com.example.stockcheck.model;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.NonNull;
@@ -28,10 +29,16 @@ public class Tyre implements Parcelable {
     private boolean lastSoldDateChanged = false;
     private String extraComment = "";
     /**
-     * Excludes edits to seen
+     * Whether the tyre data has been edited (excludes edits to seen)
      */
     private boolean isEdited = false;
+    /**
+     * Whether the tyre data has been added, rather than imported
+     */
     private boolean isAdded = false;
+    /**
+     * Whether the tyre data has been marked as done
+     */
     public boolean isDone = false;
 
     /**
@@ -65,24 +72,24 @@ public class Tyre implements Parcelable {
         return id;
     }
 
-    public String GetPart(boolean getRaw) {
-        return part.GetString(getRaw);
+    public String GetPart(boolean getRaw, Context context) {
+        return part.GetString(getRaw, context);
     }
 
     public String GetPartNumber() {
         return String.valueOf(partNumber);
     }
 
-    public String GetSupplierPartCode(boolean getRaw) {
-        return supplierPartCode.GetString(getRaw);
+    public String GetSupplierPartCode(boolean getRaw, Context context) {
+        return supplierPartCode.GetString(getRaw, context);
     }
 
-    public String GetDescription(boolean getRaw) {
-        return description.GetString(getRaw);
+    public String GetDescription(boolean getRaw, Context context) {
+        return description.GetString(getRaw, context);
     }
 
-    public String GetLocation(boolean getRaw) {
-        return location.GetString(getRaw);
+    public String GetLocation(boolean getRaw, Context context) {
+        return location.GetString(getRaw, context);
     }
 
     public String GetStock() {
@@ -226,7 +233,7 @@ public class Tyre implements Parcelable {
         public int compare(Tyre tyre1, Tyre tyre2) {
             int compResult = Integer.compare(tyre1.partNumber, tyre2.partNumber);
             if (compResult == 0) {
-                return tyre1.GetPart(true).compareTo(tyre2.GetPart(true));
+                return tyre1.GetPart(true, null).compareTo(tyre2.GetPart(true, null));
             }
             return compResult;
         }
@@ -239,7 +246,7 @@ public class Tyre implements Parcelable {
         public int compare(Tyre tyre1, Tyre tyre2) {
             int compResult = Integer.compare(tyre1.lastSoldDateInt, tyre2.lastSoldDateInt);
             if (compResult == 0) {
-                return tyre1.GetPart(true).compareTo(tyre2.GetPart(true));
+                return tyre1.GetPart(true, null).compareTo(tyre2.GetPart(true, null));
             }
             return compResult;
         }
@@ -252,7 +259,7 @@ public class Tyre implements Parcelable {
         public int compare(Tyre tyre1, Tyre tyre2) {
             int compResult = Float.compare(tyre1.stockFloat, tyre2.stockFloat);
             if (compResult == 0) {
-                return tyre1.GetPart(true).compareTo(tyre2.GetPart(true));
+                return tyre1.GetPart(true, null).compareTo(tyre2.GetPart(true, null));
             }
             return compResult;
         }
@@ -277,7 +284,7 @@ public class Tyre implements Parcelable {
 
     public void FromStoredTyre(StoredTyre storedTyre) {
         part = storedTyre.part;
-        TryParsePartNumber(part.GetString(true));
+        TryParsePartNumber(part.GetString(true, null));
         supplierPartCode = storedTyre.supplierPartCode;
         description = storedTyre.description;
         location = storedTyre.location;

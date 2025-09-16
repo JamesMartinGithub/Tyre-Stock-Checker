@@ -631,10 +631,10 @@ public class TyreListActivity extends AppCompatActivity {
         }
         // Filter by search
         return filterSearch.isEmpty() ||
-                tyre.GetPart(true).toLowerCase().contains(filterSearch.toLowerCase()) ||
-                tyre.GetSupplierPartCode(true).toLowerCase().contains(filterSearch.toLowerCase()) ||
-                tyre.GetDescription(true).toLowerCase().contains(filterSearch.toLowerCase()) ||
-                tyre.GetLocation(true).toLowerCase().contains(filterSearch.toLowerCase());
+                tyre.GetPart(true, null).toLowerCase().contains(filterSearch.toLowerCase()) ||
+                tyre.GetSupplierPartCode(true, null).toLowerCase().contains(filterSearch.toLowerCase()) ||
+                tyre.GetDescription(true, null).toLowerCase().contains(filterSearch.toLowerCase()) ||
+                tyre.GetLocation(true, null).toLowerCase().contains(filterSearch.toLowerCase());
     }
 
     private void ClearSearch(boolean showKeyboard, boolean deselect) {
@@ -699,13 +699,13 @@ public class TyreListActivity extends AppCompatActivity {
                 htmlTable.append("<tr><td style=\"color:Black;width:1%;\">")
                         .append(tyre.IsAdded() ? "✚" : (tyre.IsEdited() || !seenMatchesStock) ? "●" : "")
                         .append("</td><td>")
-                        .append(tyre.GetPart(false))
+                        .append(tyre.GetPart(false, getApplicationContext()))
                         .append("</td><td>")
-                        .append(tyre.GetSupplierPartCode(false))
+                        .append(tyre.GetSupplierPartCode(false, getApplicationContext()))
                         .append("</td><td>")
-                        .append(tyre.GetDescription(false))
+                        .append(tyre.GetDescription(false, getApplicationContext()))
                         .append("</td><td>")
-                        .append(tyre.GetLocation(false))
+                        .append(tyre.GetLocation(false, getApplicationContext()))
                         .append("</td><td style=\"text-align:center;" + (!seenMatchesStock ? "color:#770000;" : "") + "\">" + (!seenMatchesStock ? "<b>" : ""))
                         .append(tyre.GetStock())
                         .append((!seenMatchesStock ? "</b>" : "") + "</td><td style=\"text-align:center;" + (!seenMatchesStock ? "color:#770000;" : "") + "\">" + (!seenMatchesStock ? "<b>" : ""))

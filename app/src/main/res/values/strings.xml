@@ -38,4 +38,9 @@
     <string name="save_delete_successful">Save data deleted"</string>
     <string name="save_error">An error occurred, could not save</string>
     <string name="save_delete_error">An error occurred, could not delete save data</string>
+    <!-- Markup -->
+    <string name="inserted_start">&lt;b&gt;&lt;u&gt;&lt;font color=&quot;%1$s&quot;&gt;</string>
+    <string name="inserted_end">&lt;/font&gt;&lt;/u&gt;&lt;/b&gt;</string>
+    <string name="deleted_start">&lt;s&gt;&lt;font color=&quot;%1$s&quot;&gt;</string>
+    <string name="deleted_end">&lt;/font&gt;&lt;/s&gt;</string>
 </resources>

@@ -1,8 +1,14 @@
 package com.example.stockcheck.model;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.NonNull;
+
+import com.example.stockcheck.R;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,25 +36,49 @@ public class TyreComment implements Parcelable {
      * @param getRaw Whether to get the raw string
      * @return String
      */
-    public String GetString(boolean getRaw) {
+    @SuppressLint("ResourceType")
+    public String GetString(boolean getRaw, Context context) {
         if (commentChars == null || getRaw) {
             return rawField;
         } else {
             StringBuilder builder = new StringBuilder();
+            Tyre.CharType prevType = Tyre.CharType.UNCHANGED;
+            Tyre.CharType newType = Tyre.CharType.UNCHANGED;
             for (int i = 0; i < commentChars.size(); i++) {
-                switch (commentTypes.get(i)) {
-                    case UNCHANGED:
-                        builder.append(commentChars.get(i));
-                        break;
+                newType = commentTypes.get(i);
+                // Add end tags
+                if (prevType != Tyre.CharType.UNCHANGED && prevType != newType) {
+                    switch (prevType) {
+                        case INSERTED:
+                            builder.append(context.getString(R.string.inserted_end));
+                            break;
+                        case DELETED:
+                            builder.append(context.getString(R.string.deleted_end));
+                            break;
+                    }
+                }
+                // Add start tags
+                if (newType != Tyre.CharType.UNCHANGED && prevType != newType) {
+                    switch (newType) {
+                        case INSERTED:
+                            builder.append(context.getString(R.string.inserted_start, context.getString(R.color.char_inserted)));
+                            break;
+                        case DELETED:
+                            builder.append(context.getString(R.string.deleted_start, context.getString(R.color.char_deleted)));
+                            break;
+                    }
+                    prevType = newType;
+                }
+                // Add character
+                builder.append(commentChars.get(i));
+            }
+            if (newType != Tyre.CharType.UNCHANGED) {
+                switch (newType) {
                     case INSERTED:
-                        builder.append("<b><u><font color=\"#007700\">");
-                        builder.append(commentChars.get(i));
-                        builder.append("</font></u></b>");
+                        builder.append(context.getString(R.string.inserted_end));
                         break;
                     case DELETED:
-                        builder.append("<s><font color=\"#770000\">");
-                        builder.append(commentChars.get(i));
-                        builder.append("</font></s>");
+                        builder.append(context.getString(R.string.deleted_end));
                         break;
                 }
             }
@@ -222,7 +252,7 @@ public class TyreComment implements Parcelable {
         parcel.writeList(commentTypes);
     }
 
-    public static final Parcelable.Creator<TyreComment> CREATOR = new Parcelable.Creator<TyreComment>() {
+    public static final Creator<TyreComment> CREATOR = new Creator<TyreComment>() {
         public TyreComment createFromParcel(Parcel in) {
             return new TyreComment(in);
         }

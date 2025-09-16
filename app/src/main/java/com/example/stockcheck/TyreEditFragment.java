@@ -60,13 +60,13 @@ public class TyreEditFragment extends Fragment {
 
         // Initialise text edits with text from tyre
         TextView partText = (TextView) view.findViewById(R.id.partText);
-        partText.setText(tyre.GetPart(true));
+        partText.setText(tyre.GetPart(true, null));
         TextView supplierPartCodeText = (TextView) view.findViewById(R.id.supplierPartCodeText);
-        supplierPartCodeText.setText(tyre.GetSupplierPartCode(true));
+        supplierPartCodeText.setText(tyre.GetSupplierPartCode(true, getContext()));
         TextView descriptionText = (TextView) view.findViewById(R.id.descriptionText);
-        descriptionText.setText(tyre.GetDescription(true));
+        descriptionText.setText(tyre.GetDescription(true, null));
         TextView locationText = (TextView) view.findViewById(R.id.locationText);
-        locationText.setText(tyre.GetLocation(true));
+        locationText.setText(tyre.GetLocation(true, null));
         TextView seenText = (TextView) view.findViewById(R.id.seenText);
         seenText.setText(tyre.GetSeen());
         TextView stockText = (TextView) view.findViewById(R.id.stockText);
