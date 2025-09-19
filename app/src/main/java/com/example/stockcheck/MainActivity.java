@@ -1,5 +1,6 @@
 package com.example.stockcheck;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -109,26 +110,13 @@ public class MainActivity extends AppCompatActivity {
      */
     private void FileSelected(androidx.activity.result.ActivityResult result) {
         Uri fileUri;
-        Cursor cursor = null;
         Intent resultIntent = result.getData();
         if (resultIntent != null) {
             try {
                 // Get file Uri and determine file name and type
                 fileUri = resultIntent.getData();
-                String fileType;
-                String fileName;
-                fileType = getContentResolver().getType(fileUri);
-                cursor = getContentResolver().query(fileUri, null, null, null, null);
-                if (cursor != null && cursor.moveToFirst()) {
-                    int columnIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                    if (columnIndex != -1) {
-                        fileName = cursor.getString(columnIndex);
-                    } else {
-                        throw new Exception("Cannot get file name");
-                    }
-                } else {
-                    fileName = "";
-                }
+                String fileType = TestableContentResolver.GetType(getApplicationContext(), fileUri);
+                String fileName = TestableContentResolver.GetName(getApplicationContext(), fileUri);
 
                 // Parse file to get tyre list
                 ArrayList<Tyre> tyreList;
@@ -166,10 +154,6 @@ public class MainActivity extends AppCompatActivity {
                 // Could not read file
                 binding.errorTextView.setText(e.toString());
                 System.out.println(e.toString());
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
             }
         }
     }

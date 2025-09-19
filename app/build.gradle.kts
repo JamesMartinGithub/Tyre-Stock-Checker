@@ -5,6 +5,7 @@ plugins {
 android {
     namespace = "com.example.stockcheck"
     compileSdk = 36
+    useLibrary("android.test.mock")
 
     defaultConfig {
         applicationId = "com.example.stockcheck"
