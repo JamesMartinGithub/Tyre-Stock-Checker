@@ -57,6 +57,6 @@ jobs:
       - name: Run integration tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 36
+          api-level: 29
           arch: x86_64
           script: ./gradlew connectedCheck -x lint
