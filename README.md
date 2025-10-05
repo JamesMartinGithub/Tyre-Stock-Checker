@@ -1,4 +1,6 @@
 # Tyre-Stock-Checker
+[![CI](https://github.com/JamesMartinGithub/Tyre-Stock-Checker/actions/workflows/ci.yml/badge.svg)](https://github.com/JamesMartinGithub/Tyre-Stock-Checker/actions/workflows/ci.yml)
+
 (2025) Android app developed for (and currently being used by) a garage to make stock checking tyres easier - built with Android Studio and Java.
 
 It provides importing of .xlsx or .csv files from GDS containing stock information, and displays all tyres in a scrollable spreadsheet view, allowing for searching, sorting, editing, and printing a spreadsheet with all changes visible to PDF or paper.
@@ -8,6 +10,7 @@ It provides importing of .xlsx or .csv files from GDS containing stock informati
 - Parsing of .xlsx (excel spreadsheet) and .csv files
 - Android Room with SQL for persistent storage
 - Lazy loading of fragments for performance and to reduce memory usage
+- Unit and integration testing with GitHub actions continuous integration
 
 ## Features:
 - Importing of .xlsx and .csv files
